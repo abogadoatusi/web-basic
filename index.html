@@ -1,0 +1,1601 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>[hidden]{display:none!important}html,body{margin:0}</style>
+</head>
+<body>
+<title>つくって学ぶWeb基礎</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* 構成: 上に進捗とレッスン一覧、下に「説明 | ファイル+エディタ | プレビュー」の3列。狭い画面ではタブ切替 */
+:root{
+  --bg:#eef1f5; --surface:#ffffff; --surface2:#e6ebf2; --line:#d0d8e3;
+  --fg:#182131; --muted:#586579;
+  --accent:#2a4a8a; --accent-fg:#ffffff; --accent-soft:#e1e9f8;
+  --ok:#1f7f55; --ok-soft:#dff2e8; --bad:#b3372f; --bad-soft:#fbe5e2;
+  --hint:#7a4f00; --hint-soft:#fdf0d2;
+  --ed-bg:#fbfcfe; --ed-fg:#1b2535; --ed-line:#e3e8f0; --tree-bg:#f4f6fa;
+  --f-head:'Zen Maru Gothic','Hiragino Maru Gothic ProN',sans-serif;
+  --f-body:'Zen Kaku Gothic New','Hiragino Kaku Gothic ProN','Yu Gothic',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono','Noto Sans Mono CJK JP',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f141b; --surface:#171d27; --surface2:#202836; --line:#2d3646;
+    --fg:#e4e9f1; --muted:#9aa6ba;
+    --accent:#8db0f2; --accent-fg:#0d1626; --accent-soft:#1e2c47;
+    --ok:#5cc593; --ok-soft:#173326; --bad:#ff8a80; --bad-soft:#3a1d1b;
+    --hint:#f0c36a; --hint-soft:#33290f;
+    --ed-bg:#0c1117; --ed-fg:#dfe6f1; --ed-line:#1f2733; --tree-bg:#121821;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f141b; --surface:#171d27; --surface2:#202836; --line:#2d3646;
+  --fg:#e4e9f1; --muted:#9aa6ba;
+  --accent:#8db0f2; --accent-fg:#0d1626; --accent-soft:#1e2c47;
+  --ok:#5cc593; --ok-soft:#173326; --bad:#ff8a80; --bad-soft:#3a1d1b;
+  --hint:#f0c36a; --hint-soft:#33290f;
+  --ed-bg:#0c1117; --ed-fg:#dfe6f1; --ed-line:#1f2733; --tree-bg:#121821;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.75;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{height:100%;display:flex;flex-direction:column;gap:10px;padding-block:10px;min-height:0}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{display:grid;place-items:center;width:34px;height:34px;border-radius:8px;background:var(--accent);color:var(--accent-fg);font:500 13px var(--f-mono)}
+.brand h1{margin:0;font:700 17px/1.3 var(--f-head)}
+.tag{margin:0;font-size:12px;color:var(--muted);line-height:1.4}
+.prog{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.bar{width:110px;height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+
+.lessons{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.chip{flex:none;display:flex;align-items:center;gap:6px;padding:4px 12px 4px 6px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:13px;line-height:1.5}
+.chip .n{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--surface2);font:500 11px var(--f-mono)}
+.chip[aria-current="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.chip[aria-current="true"] .n{background:var(--accent-fg);color:var(--accent)}
+.chip.done .n{background:var(--ok);color:#fff}
+.chip.done .n::before{content:"✓"}
+.chip.done .n span{display:none}
+
+.tabs{display:none;gap:6px}
+.tabs button{flex:1;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:14px}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+
+.work{flex:1;min-height:0;display:grid;gap:10px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;min-height:0;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+#pLesson{grid-area:lesson}#pEditor{grid-area:editor}#pPreview{grid-area:preview}
+@media (min-width:1100px){.work{grid-template-columns:minmax(300px,370px) minmax(0,1.15fr) minmax(0,1fr);grid-template-areas:"lesson editor preview"}}
+@media (min-width:760px) and (max-width:1099px){.work{grid-template-columns:minmax(280px,340px) minmax(0,1fr);grid-template-rows:minmax(0,1.1fr) minmax(0,1fr);grid-template-areas:"lesson editor" "lesson preview"}}
+@media (max-width:759px){
+  .tabs{display:flex}
+  .work{grid-template-columns:minmax(0,1fr);grid-template-areas:"main"}
+  .panel,#pLesson,#pEditor,#pPreview{grid-area:main;display:none}
+  .work[data-view="lesson"] #pLesson,.work[data-view="editor"] #pEditor,.work[data-view="preview"] #pPreview{display:flex}
+  .tag{display:none}
+}
+
+/* lesson */
+.lesson-body{overflow:auto;padding:16px 18px 20px}
+.eyebrow{margin:0;font-size:12px;color:var(--muted);letter-spacing:.06em}
+.lesson-body h2{margin:2px 0 10px;font:700 21px/1.4 var(--f-head);text-wrap:balance}
+.lesson-body h3{margin:20px 0 8px;font:700 15px var(--f-head)}
+.prose p{margin:0 0 .8em}
+.prose ul,.prose ol{margin:0 0 .9em;padding-left:1.3em}
+.prose li{margin-bottom:.25em}
+code{font:400 .88em var(--f-mono);background:var(--surface2);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+code,pre,textarea,.hl,.con,.addr,.node{font-variant-ligatures:none;font-feature-settings:'liga' 0,'calt' 0}
+pre.ex{margin:0 0 .9em;padding:10px 12px;background:var(--ed-bg);color:var(--ed-fg);border:1px solid var(--ed-line);border-radius:6px;font:400 12.5px/1.6 var(--f-mono);overflow-x:auto;tab-size:2}
+.note{margin:0 0 .9em;padding:8px 12px;border-radius:6px;background:var(--hint-soft);color:var(--hint);font-size:13.5px}
+.tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.tasks li{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;line-height:1.6}
+.mark{flex:none;width:18px;height:18px;margin-top:3px;border-radius:50%;border:2px solid var(--line);position:relative}
+.tasks .tt{flex:1;min-width:0}
+.lesson-body strong{color:var(--bad);font-weight:700}
+.tasks .tt code,.tasks .tn b.rd{color:var(--bad);font-weight:700}
+.tasks .tn{display:block;margin-top:4px;font-size:13px;color:var(--muted);line-height:1.7}
+.tasks .tl{display:block;margin-top:6px;font-size:12px;color:var(--muted)}
+.tasks pre.ex{margin:2px 0 0;font-size:12px;user-select:text}
+.tasks.opt li{border-style:dashed}
+.node.dropok{background:var(--accent-soft);outline:1px dashed var(--accent);outline-offset:-1px}
+.tree.droproot{outline:1px dashed var(--accent);outline-offset:-2px}
+.treebox.drag{outline:2px dashed var(--accent);outline-offset:-3px}
+.drophint{margin:0;padding:4px 8px;font-size:11px;line-height:1.5;color:var(--muted);border-bottom:1px solid var(--line)}
+.tasks li.done{background:var(--ok-soft);border-color:transparent}
+.tasks li.done .mark{background:var(--ok);border-color:var(--ok)}
+.tasks li.done .mark::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.donebox{margin-top:10px;padding:8px 12px;border-radius:8px;background:var(--ok);color:#fff;font-weight:700;font-size:14px}
+details ol{margin:0;padding-left:1.3em}
+details li{margin-bottom:.4em}
+details{margin-top:12px;border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:14px}
+details summary{cursor:pointer;font-weight:700}
+details[open] summary{margin-bottom:8px}
+.sol-name{margin:8px 0 4px;font:500 12px var(--f-mono);color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{padding:6px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:13.5px}
+.btn:hover{background:var(--surface2)}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.pager{display:flex;justify-content:space-between;gap:8px;margin-top:20px}
+.pager .btn:disabled{opacity:.4;cursor:default}
+
+/* editor + tree */
+#pEditor{display:grid;grid-template-columns:178px minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
+.treebox{grid-row:1/3;display:flex;flex-direction:column;min-height:0;background:var(--tree-bg);border-right:1px solid var(--line)}
+.treehead{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;font:500 12px var(--f-mono);color:var(--muted);border-bottom:1px solid var(--line)}
+.tools{display:flex;gap:2px;padding:4px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tool{padding:2px 7px;border:1px solid transparent;border-radius:6px;background:none;font-size:12px;color:var(--fg)}
+.tool:hover{background:var(--surface2)}
+.tool:disabled{opacity:.35;cursor:default}
+.namerow{display:none;padding:6px;border-bottom:1px solid var(--line);gap:4px;flex-wrap:wrap}
+.namerow.on{display:flex}
+.namerow label{flex-basis:100%;font-size:11.5px;color:var(--muted);line-height:1.4}
+.namerow input{flex:1;min-width:0;padding:3px 6px;font:400 12.5px var(--f-mono);border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--fg)}
+.nameerr{flex-basis:100%;margin:0;font-size:11.5px;color:var(--bad);line-height:1.4}
+.tree{flex:1;min-height:0;overflow:auto;padding:4px 0;font-size:13px}
+.tree ul{list-style:none;margin:0;padding:0}
+.node{display:flex;align-items:center;gap:5px;width:100%;padding:2px 8px;border:0;background:none;text-align:left;line-height:1.6;font-family:var(--f-mono);font-size:12.5px;white-space:nowrap}
+.node:hover{background:var(--surface2)}
+.node[aria-current="true"]{background:var(--accent-soft)}
+.node svg{flex:none;width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round;color:var(--muted)}
+.node.bad .nm{color:var(--bad);text-decoration:underline wavy}
+.edwrap{display:flex;flex-direction:column;min-width:0;min-height:0}
+.edtitle{padding:5px 12px;font:500 12px var(--f-mono);color:var(--muted);border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hlwrap{position:relative;flex:1;min-height:0;background:var(--ed-bg)}
+.hl,#code{position:absolute;inset:0;margin:0;width:100%;height:100%;padding:12px;border:0;font:400 13.5px/1.65 var(--f-mono);tab-size:2;white-space:pre;letter-spacing:0}
+.hl{overflow:hidden;color:var(--ed-fg);pointer-events:none}
+#code{resize:none;overflow:auto;background:transparent;color:transparent;-webkit-text-fill-color:transparent;caret-color:var(--accent)}
+#code::selection{background:color-mix(in srgb,var(--accent) 35%,transparent)}
+.hc{color:var(--muted);opacity:.7}
+.ht{color:var(--accent)}
+.er{text-decoration:underline wavy var(--bad);text-decoration-skip-ink:none;text-underline-offset:3px}
+.lint{flex-basis:100%;display:flex;flex-direction:column;gap:2px;max-height:84px;overflow:auto}
+.lint .le{white-space:normal;text-align:left;border:0;background:var(--bad-soft);color:var(--bad);border-radius:6px;padding:3px 8px;font-size:12px;line-height:1.5}
+.lint .lm{color:var(--muted);padding:0 8px}
+.warn{margin-left:6px;color:var(--bad);font-size:11px}
+.ph{background:var(--bad-soft);color:var(--bad);border-radius:3px;box-shadow:0 0 0 1px var(--bad)}
+.todo{margin-left:6px;color:var(--bad);font-size:10px}
+.gh{color:var(--muted);opacity:.55}
+#code:focus-visible{outline-offset:-2px}
+.imgprev{flex:1;min-height:0;display:none;align-items:center;justify-content:center;padding:12px;background:var(--ed-bg);overflow:auto}
+.imgprev img{max-width:100%;max-height:100%}
+.edfoot{flex-wrap:wrap;display:flex;justify-content:space-between;gap:8px;padding:5px 12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+@media (max-width:759px){
+  #pEditor{display:none;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,38%) minmax(0,1fr) auto}
+  .work[data-view="editor"] #pEditor{display:grid}
+  #pEditor>*{grid-column:1!important}
+  .treebox{grid-row:auto;border-right:0;border-bottom:1px solid var(--line)}
+}
+
+/* preview */
+.ptool{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.addr{flex:1;min-width:0;padding:2px 10px;border-radius:999px;background:var(--surface2);font:400 12px var(--f-mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{padding:2px 9px;border:0;background:none;font-size:12px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg)}
+.stage{flex:1;min-height:0;background:var(--surface2);padding:10px;display:flex;justify-content:center}
+.stage .sw{position:relative;overflow:hidden;flex:none}
+.stage iframe{position:absolute;left:0;top:0;border:1px solid var(--line);background:#fff;transform-origin:0 0}
+.con{max-height:104px;overflow:auto;padding:6px 10px;border-top:1px solid var(--line);font:400 12px/1.6 var(--f-mono)}
+.con div.error{color:var(--bad)}
+.probe{position:fixed;left:-10000px;top:0;height:700px;border:0;visibility:hidden}
+.bm{width:100%;max-width:300px;height:auto;display:block;margin:6px 0 12px}
+.bm text{font-size:11px;fill:var(--fg)}
+.bm .m{fill:var(--surface2);stroke:var(--line)}
+.bm .b{fill:var(--accent)}
+.bm .p{fill:var(--accent-soft)}
+.bm .c{fill:var(--surface);stroke:var(--line)}
+.bm text.on{fill:var(--accent-fg)}
+.fin{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:16px;background:rgba(20,28,45,.72);overflow:auto}
+.fin[hidden]{display:none}
+.finbox{position:relative;z-index:1;width:min(560px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:24px 22px;border-radius:16px;background:var(--surface);color:var(--fg);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.finmark{margin:0;font-size:44px;line-height:1;text-align:center}
+.finbox h2{margin:8px 0 4px;text-align:center;font-size:22px}
+.finlead{margin:0 0 14px;text-align:center;color:var(--muted)}
+.finbox h3{margin:16px 0 6px;font-size:14px}
+.finlist{margin:0;padding-left:1.3em;font-size:14px;line-height:1.8}
+.finstats{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.finstats span{padding:4px 12px;border-radius:999px;background:var(--ok-soft);color:var(--ok);font-size:13px;font-weight:700}
+.finbtns{margin:18px 0 0;text-align:center}
+.confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.confetti i{position:absolute;top:-20px;width:9px;height:14px;border-radius:2px;opacity:.9;animation:cf 3.2s linear infinite}
+@keyframes cf{to{transform:translateY(110vh) rotate(720deg)}}
+@media (prefers-reduced-motion:reduce){.confetti{display:none}}
+.chip.adv::after{content:"発展";margin-left:2px;font-size:10px;color:var(--muted)}
+.chip[aria-current="true"].adv::after{color:var(--accent-fg)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;max-width:min(92vw,460px);padding:10px 16px;border-radius:10px;background:var(--fg);color:var(--bg);font-size:13.5px;line-height:1.6;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+#secTxt{padding:1px 8px;border-radius:999px;background:var(--surface2)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">&lt;/&gt;</span>
+      <div><h1>つくって学ぶWeb基礎</h1><p class="tag">前期：まずここで試す、次に本物のファイルで</p></div>
+    </div>
+    <div class="prog" aria-live="polite"><div class="bar"><i id="barFill"></i></div><span id="progTxt"></span><span id="secTxt" title="ひみつの仕掛け"></span><button type="button" class="chip" id="finBtn" hidden>修了ページ</button><a class="chip" href="web-kiso-kyozai.zip" download style="text-decoration:none;color:inherit">教材ZIPを保存</a></div>
+  </header>
+  <nav class="lessons" id="nav" aria-label="レッスン一覧"></nav>
+  <div class="tabs" id="viewTabs">
+    <button type="button" data-v="lesson" aria-selected="true">説明</button>
+    <button type="button" data-v="editor" aria-selected="false">コード</button>
+    <button type="button" data-v="preview" aria-selected="false">プレビュー</button>
+  </div>
+  <main class="work" id="work" data-view="lesson">
+    <section class="panel" id="pLesson" aria-label="レッスン"><div class="lesson-body" id="lessonBody"></div></section>
+    <section class="panel" id="pEditor" aria-label="ファイルとエディタ">
+      <div class="treebox">
+        <div class="treehead"><span>my-site/</span></div>
+        <div class="tools">
+          <button type="button" class="tool" id="tNewFile">+ファイル</button>
+          <button type="button" class="tool" id="tNewDir">+フォルダ</button>
+          <button type="button" class="tool" id="tRename">名前変更</button>
+          <button type="button" class="tool" id="tDelete">削除</button>
+        </div>
+        <form class="namerow" id="nameRow" autocomplete="off">
+          <label for="nameIn" id="nameLbl"></label>
+          <input id="nameIn" type="text" spellcheck="false" autocapitalize="off">
+          <button type="submit" class="btn primary" id="nameOk">OK</button>
+          <button type="button" class="btn" id="nameCancel">やめる</button>
+          <p class="nameerr" id="nameErr" hidden></p>
+        </form>
+        <p class="drophint">ファイルをフォルダの上へドラッグすると、そのフォルダへ移動できます</p>
+        <div class="tree" id="tree" role="tree" aria-label="ファイル一覧"></div>
+      </div>
+      <div class="edwrap">
+        <div class="edtitle" id="edTitle"></div>
+        <div class="hlwrap" id="hlWrap"><pre class="hl" id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-label="コードエディタ"></textarea></div>
+        <div class="imgprev" id="imgPrev"></div>
+      </div>
+      <div class="edfoot" style="grid-column:2"><div class="lint" id="lint" hidden></div><span id="sum"></span><span>Tab：字下げ・候補の確定</span></div>
+    </section>
+    <section class="panel" id="pPreview" aria-label="プレビュー">
+      <div class="ptool">
+        <span class="addr" id="addr">index.html</span>
+        <div class="seg"><button type="button" id="wFull" aria-pressed="true">PC幅</button><button type="button" id="wSp" aria-pressed="false">スマホ幅</button></div>
+      </div>
+      <div class="stage" id="stage"><div class="sw" id="sw"><iframe id="frame" title="プレビュー" sandbox="allow-scripts allow-same-origin"></iframe></div></div>
+      <div class="con" id="con" hidden></div>
+    </section>
+  </main>
+  <div class="fin" id="fin" role="dialog" aria-modal="true" aria-labelledby="finTitle" hidden>
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+    <div class="finbox">
+      <p class="finmark" aria-hidden="true">&#127881;</p>
+      <h2 id="finTitle">おめでとう！修了です</h2>
+      <p class="finlead">「つくって学ぶWeb基礎」の本編を、すべてやり遂げました。</p>
+      <div class="finstats" id="finStats"></div>
+      <h3>ここまでで身についたこと</h3>
+      <ul class="finlist">
+        <li>ファイルとフォルダ、命名ルール</li>
+        <li>HTMLの骨格と、意味に合ったタグ</li>
+        <li>リンク・画像と、ファイルの場所（パス）</li>
+        <li>CSSで色・余白・並べ方・スマホ対応</li>
+        <li>JavaScriptで動きをつけること</li>
+        <li>自分のホームページを作ること</li>
+      </ul>
+      <h3>この先にできること</h3>
+      <ul class="finlist">
+        <li>作ったサイトを、無料のサービスで公開してみる（Netlify、GitHub Pages など）</li>
+        <li>スマホで自分のサイトを開いて、友だちに見せてみる</li>
+        <li>発展レッスン（条件分岐・モーション）に挑戦する</li>
+      </ul>
+      <p class="finbtns"><button type="button" class="btn primary" id="finClose">閉じる</button></p>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" hidden></div>
+</div>
+
+<script>
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const k=s=>'<code>'+esc(s)+'</code>';
+const ex=s=>'<pre class="ex">'+esc(s)+'</pre>';
+const LESSONS=[];
+
+/* 命名規則：半角の小文字英数字、単語の区切りは - か _、ファイルには拡張子 */
+const PART_OK=/^[a-z0-9]+([-_][a-z0-9]+)*$/;
+function nameProblem(base,isDir){
+  if(!base) return '名前を入れてください。';
+  if(/[\/\\]/.test(base)) return 'フォルダの区切り（/）は名前に使えません。';
+  if(/\s|　/.test(base)) return 'スペースは使えません。かわりに - （ハイフン）を使います。';
+  if(/[^\x21-\x7e]/.test(base)) return '日本語などの全角文字は使えません。半角の英数字にします。';
+  if(/[A-Z]/.test(base)) return '大文字は使わず、小文字にそろえます。';
+  if(isDir){
+    return PART_OK.test(base)?'':'フォルダ名に使えるのは、半角の小文字英数字と - _ だけです。';
+  }
+  const i=base.lastIndexOf('.');
+  if(i<1||i===base.length-1) return '拡張子（.html や .css など）を付けます。';
+  if(!PART_OK.test(base.slice(0,i))||!/^[a-z0-9]+$/.test(base.slice(i+1)))
+    return '使えるのは、半角の小文字英数字と - _ 、そして拡張子の . だけです。';
+  return '';
+}
+function pathProblems(path){
+  const parts=path.split('/');
+  for(let i=0;i<parts.length;i++){
+    const p=nameProblem(parts[i],i<parts.length-1);
+    if(p) return p;
+  }
+  return '';
+}
+
+const PHOTO="<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'><rect width='600' height='400' fill='#bcd7f0'/><circle cx='470' cy='95' r='42' fill='#f6c653'/><path d='M0 400V260l120-110 100 90 120-140 140 160 120-90v230z' fill='#587a9b'/><path d='M0 400V320l140-60 140 50 140-70 180 80v80z' fill='#3d5a3c'/></svg>";
+const SEA="<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'><rect width='600' height='400' fill='#ffe3c2'/><circle cx='300' cy='210' r='70' fill='#f08a4b'/><rect y='210' width='600' height='190' fill='#2f6f9f'/><path d='M0 270q75-22 150 0t150 0 150 0 150 0v130H0z' fill='#4a8fc0'/></svg>";
+
+LESSONS.push({
+  id:'tools', req:1, short:'道具の準備', title:'道具の準備：VS Code と Chrome の検証',
+  open:'index.html', page:'index.html', w:800,
+  files:{'index.html':'<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n  <title>道具のテスト</title>\n</head>\n<body>\n  <h1>ここに自分の名前</h1>\n  <p>VS Codeで書き換えて保存したら、Chromeで再読み込みします。</p>\n  <p id="answer">ここに合言葉を書く</p>\n  <script>\n    console.log("合言葉は " + ["sa", "ku", "ra"].join("") + (30 + 11));\n  <\/script>\n</body>\n</html>\n'},
+  body:`
+<p>この授業では、実際の現場で使う道具で作ります。コードを書く<strong>VS Code</strong>と、結果を確かめる<strong>Google Chrome</strong>の2つです。</p>
+<h3>0. 教材をダウンロードして開く</h3>
+<p>自分のPCで作業するための<strong>教材ファイル（ZIP）</strong>を、先に受け取っておきます。ZIPは、たくさんのファイルを1つにまとめた箱のようなものです。使う前に<strong>ひらく（展開する）</strong>必要があります。</p>
+<ol>
+<li>この画面の右上にある ${k('教材ZIPを保存')} を押して、${k('web-kiso-kyozai.zip')} をPCに保存する。ふつうは「ダウンロード」フォルダに入る</li>
+<li><strong>展開する</strong>：Windows はZIPを右クリック →「すべて展開」。Mac はZIPをダブルクリックするだけ</li>
+<li>できた ${k('web-kiso-kyozai')} フォルダを、探しやすい場所（デスクトップなど）に移す</li>
+</ol>
+<p>フォルダの中には、レッスンごとの箱が入っています。</p>
+<pre class="ex">web-kiso-kyozai/
+  README.txt            ← 使い方の説明
+  lesson-01-tools/
+    my-site/            ← 最初のレッスンで開くのはこれ
+  lesson-02-files/
+    my-site/
+  ……（レッスンの数だけ続く）</pre>
+<ul>
+<li>各レッスンの ${k('my-site')} が、そのレッスンの<strong>スタート地点</strong>です。いまのレッスンの番号のフォルダを使います。</li>
+<li><strong>なぜ展開が必要なのか</strong>：ZIPの中身は圧縮されていて、VS Code も Chrome もそのままでは読めないからです。展開すると、ふつうのフォルダとファイルに戻ります。</li>
+<li><strong>よくあるつまずき</strong>：ZIPをダブルクリックして中身が見えても、そこで編集しないこと。一時的に見えているだけで、保存してもどこかへ消えてしまいます。必ず展開したフォルダで作業します。</li>
+</ul>
+<p class="note">保存できないときは、先生に声をかけてください。</p>
+<h3>1. VS Code を用意する</h3>
+<ul>
+<li>公式サイト（code.visualstudio.com）からインストールする</li>
+<li>メニューの「ファイル」→「フォルダーを開く」で、手順0で展開した ${k('lesson-01-tools')} の中の ${k('my-site')} フォルダを開く</li>
+<li>左のエクスプローラーでファイルをクリックすると、右に中身が出る</li>
+<li>保存は Windows が Ctrl+S、Mac が Cmd+S。保存しないとChromeに反映されない</li>
+</ul>
+<p class="note">拡張機能「Live Server」を入れると、保存するたびにChromeが自動で更新されます（任意）。</p>
+<h3>2. Chrome で開く</h3>
+<p>${k('index.html')} をChromeにドラッグするか、ダブルクリックで開きます。編集して保存したら、Chromeで再読み込み（Ctrl+R / Cmd+R）します。</p>
+<h3>3. Chrome の「検証」を開く</h3>
+<ul>
+<li>ページを右クリックして「検証」。または F12（Mac は Cmd+Option+I）</li>
+<li>${k('Elements')}：いま表示しているHTMLとCSSの中身。値を書き換えて試せます</li>
+<li>${k('Console')}：エラーや ${k('console.log')} の出力が出ます</li>
+<li>${k('Network')}：読み込んだファイルと、見つからなかったファイル（404）</li>
+</ul>
+<p>検証での書き換えは保存されません。再読み込みすると元に戻ります。うまくいった値を VS Code のファイルに写します。</p>
+<h3>4. このサイトのエディタの「まちがい探し」</h3>
+<p>このサイトのエディタは、まちがいの疑いがある場所に<strong>赤い波線</strong>を引き、下に理由を出します（閉じタグの忘れ、タグ名やプロパティ名のタイプミス、<code>;</code> の付け忘れなど）。メッセージをクリックすると、その場所に飛びます。簡易チェックなので、出ないまちがいもあります。最後は、プレビューで確かめます。</p>
+<h3>5. このサイトと、自分のPCの使い分け</h3>
+<p>このサイトでは、<strong>基本のやり方</strong>をここで先に試します。そのあと、自分のPCの VS Code で同じことをやってみます。課題は、自分のPCで進めます。</p>
+<h3>なぜ道具が2つ必要なのか</h3>
+<p>Webページは<strong>文字だけのファイル</strong>でできています。Wordのような飾りは入りません。そこで、文字を書くための専用の道具（VS Code）と、そのファイルを読んで画面に描く道具（Chrome）に分かれています。</p>
+<ul>
+<li><strong>なぜ保存しないと反映されないのか</strong>：Chromeが読むのは、保存されたファイルだからです。書いただけでは、PC上のファイルはまだ古いままです。</li>
+<li><strong>なぜ検証で書き換えても元に戻るのか</strong>：検証が触っているのは、ブラウザの中にある<strong>コピー</strong>だからです。元のファイルは変わりません。試すにはよいので、うまくいったら VS Code に写します。</li>
+</ul>`,
+  tasks:[
+    {t:`VS Code で ${k('index.html')} の h1 を自分の名前に書き換えて保存する`,c:'<!\x2d- いちばん大きな見出し。ここを自分の名前にする -->\n<h1>あなたの名前</h1>',f:c=>{const h=c.q('h1');return !!h&&c.txt(h)!==''&&c.txt(h)!=='ここに自分の名前'}},
+    {t:`Chrome の Console に出る合言葉を見つけて、${k('id="answer"')} の段落に書き写す`,c:'<!\x2d- id="answer" の段落。Consoleに出た合言葉を書き写す -->\n<p id="answer">ここに合言葉</p>',f:c=>{const a=c.q('#answer');return !!a&&c.txt(a).toLowerCase().includes('sakura41')}}
+  ],
+  hint:`Chrome で index.html を開き、検証の ${k('Console')} タブを見ます。「合言葉は …」と出ている文字を、そのまま ${k('<p id="answer">')} の中に書きます。`,
+  sol:{files:{'index.html':'<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n  <title>道具のテスト</title>\n</head>\n<body>\n  <h1>さくら</h1>\n  <p>VS Codeで書き換えて保存したら、Chromeで再読み込みします。</p>\n  <p id="answer">sakura41</p>\n  <script>\n    console.log("合言葉は " + ["sa", "ku", "ra"].join("") + (30 + 11));\n  <\/script>\n</body>\n</html>\n'}}
+});
+
+LESSONS.push({
+  id:'files', req:1, short:'ファイルと名前', title:'ファイル・フォルダ・名前のルール',
+  open:'ホーム ページ.html', page:'index.html', dirs:['images'],
+  files:{
+    'ホーム ページ.html':'<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n  <title>ホームページ</title>\n</head>\n<body>\n  <h1>ようこそ</h1>\n  <p>ここは最初のページです。</p>\n</body>\n</html>\n',
+    'My Photo.svg':PHOTO
+  },
+  body:`
+<p>Webサイトは、<strong>ファイル</strong>を<strong>フォルダ</strong>に整理して作ります。コードを書く前に、まずここを押さえます。</p>
+<ul>
+<li><strong>ファイル</strong>：<code>名前.拡張子</code>の形。拡張子（${k('.html')} ${k('.css')} ${k('.js')} ${k('.svg')}）で種類が決まります。</li>
+<li><strong>フォルダ</strong>：ファイルを入れる入れ物。<code>css/main.css</code> は「css フォルダの中の main.css」の意味です。</li>
+</ul>
+<p class="note">パソコンの初期設定では拡張子が隠れていることがあります。Windowsは「表示」→「ファイル名拡張子」、Macは Finder の設定で表示できます。</p>
+<h3>名前のルール</h3>
+<ul>
+<li>半角の小文字英数字だけを使う</li>
+<li>単語の区切りは ${k('-')}（ハイフン）。スペースや日本語は使わない</li>
+<li>必ず拡張子を付ける</li>
+</ul>
+<pre class="ex">○ index.html　about-me.html　main.css
+× ホーム ページ.html　Index.HTML　my photo.svg</pre>
+<p>公開すると壊れる原因になるので、最初からこのルールで付けます。</p>
+<h3>基本のフォルダ構成</h3>
+${ex('my-site/\n  index.html   トップページ（この名前が基本）\n  about.html\n  css/\n    main.css\n  js/\n    main.js\n  images/\n    photo.svg')}
+<p>左のファイル一覧では、ファイルを選んで<strong>名前変更</strong>できます。ファイルを<strong>フォルダの上へドラッグ</strong>すると、そのフォルダへ移動できます（images フォルダは最初から用意してあります）。名前に ${k('images/photo.svg')} のように ${k('/')} を入れて、名前変更と移動を一度にすることもできます。</p>
+<h3>なぜこのルールなのか</h3>
+<ul>
+<li><strong>なぜ小文字だけなのか</strong>：公開するサーバーによっては、大文字と小文字を別のものとして扱います。${k('Index.html')} と ${k('index.html')} は別のファイルになり、自分のPCでは動いたのに公開したら見つからない、ということが起きます。</li>
+<li><strong>なぜ日本語とスペースがだめなのか</strong>：ページの住所（URL）には、半角の英数字などしか使えません。日本語やスペースは、<code>%E3%81...</code> のような読めない文字に変換されます。</li>
+<li><strong>なぜ index.html なのか</strong>：URLにファイル名を書かずフォルダだけを開くと、サーバーは自動で ${k('index.html')} を探して表示します。トップページの名前が決まっているのは、そのためです。</li>
+<li><strong>なぜフォルダに分けるのか</strong>：ページが増えると、画像やCSSが混ざって探せなくなります。css・js・images のように役割ごとに分けると、どこに何があるかすぐ分かります。</li>
+</ul>`,
+  tasks:[
+    {t:`「ホーム ページ.html」を ${k('index.html')} に名前変更する`, f:c=>c.exists('index.html')&&!c.exists('ホーム ページ.html')},
+    {t:`「My Photo.svg」を ${k('images/photo.svg')} に変更して images フォルダへ移す`, f:c=>c.exists('images/photo.svg')&&!c.exists('My Photo.svg')},
+    {t:'すべてのファイル名・フォルダ名が命名ルールを守っている', f:c=>Object.keys(c.files).length>=2&&Object.keys(c.files).every(p=>!pathProblems(p))&&c.dirs.every(d=>!dirProblem(d))}
+  ],
+  hint:`ファイルをクリックして「名前変更」で名前を直します。移動は、ファイルを images フォルダの上へドラッグします。${k('images/photo.svg')} と入力して名前変更すると、名前と場所を一度に直せます。`,
+  sol:{files:{'index.html':'<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n  <title>ホームページ</title>\n</head>\n<body>\n  <h1>ようこそ</h1>\n  <p>ここは最初のページです。</p>\n</body>\n</html>\n','images/photo.svg':PHOTO,'css/main.css':'','about.html':'<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n  <title>自己紹介</title>\n</head>\n<body>\n  <h1>自己紹介</h1>\n</body>\n</html>\n'}}
+});
+
+LESSONS.push({
+  id:'skeleton', req:1, short:'HTMLの骨格', title:'HTMLの骨格を書く',
+  open:'index.html', page:'index.html',
+  files:{'index.html':'<!\x2d- ① 一番上：「HTML5で書くよ」の宣言（!DOCTYPE html）を書く -->\n<!\x2d- ② html タグで全体を囲む（lang="ja" を付ける） -->\n<!\x2d- ③ head の中：文字化け防止の meta charset と、タブの名前 title -->\n<!\x2d- ④ body の中：見える内容。下の h1 と p を、ここへ入れる -->\n\n<h1>はじめてのWebページ</h1>\n<p>これが最初のページです。</p>\n'},
+  body:`
+<p>HTMLはタグで文章に意味を付ける言語です。タグは <code>&lt;名前&gt;</code> で始めて、<code>&lt;/名前&gt;</code> で閉じます。</p>
+${ex('<p>こんにちは</p>')}
+<p>どのページにも共通する<strong>骨格</strong>があります。プレビューが動いていても、骨格がないページは正式なHTMLではありません。</p>
+${ex('<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n  <title>ページの名前</title>\n</head>\n<body>\n  ここに見える内容\n</body>\n</html>')}
+<ul>
+<li>${k('<!DOCTYPE html>')}：HTML5で書くという宣言</li>
+<li>${k('<html lang="ja">')}：全体を囲む。日本語のページと伝える</li>
+<li>${k('<head>')}：ページの情報（画面には出ない）。${k('<meta charset="UTF-8">')} は文字化け防止、${k('<title>')} はタブの名前</li>
+<li>${k('<body>')}：画面に表示される内容</li>
+</ul>
+<p>タグの中にタグを入れることを<strong>入れ子</strong>と呼びます。2文字ぶん字下げ（インデント）すると、入れ子が読みやすくなります。</p>
+<h3>コメント</h3>
+<p>${k('<!'+'-- ここはメモ --'+'>')} で囲んだ部分は、ブラウザに無視されます。コードを一時的に消したいときにも使います（コメントアウト）。</p>
+<p class="note">ひみつ：このサイトには仕掛けが隠れています。コード1行をコメントアウトすると…？</p>
+<h3>なぜ骨格が必要なのか</h3>
+<ul>
+<li><strong>なぜ DOCTYPE を書くのか</strong>：ないと、ブラウザが「とても古い書き方のページ」と考えて、昔の表示のしかたで描きます。最近のCSSが思った通りに効かなくなります。</li>
+<li><strong>なぜ charset を書くのか</strong>：ファイルは文字を数字で保存しています。どの対応表で読むかを伝えないと、日本語が「縺ゅ＞縺」のような文字化けになります。</li>
+<li><strong>なぜ head と body に分かれるのか</strong>：head はブラウザや検索エンジン向けの情報、body は人が見る内容、と<strong>読む相手が違う</strong>からです。</li>
+<li><strong>なぜタグを閉じるのか</strong>：どこまでが1つのまとまりかを、ブラウザに伝えるためです。閉じ忘れると、後ろの内容まで巻き込まれて表示が崩れます。</li>
+<li><strong>なぜ字下げするのか</strong>：ブラウザは気にしませんが、入れ子の深さが人間に見えるようになります。閉じ忘れにも気づきやすくなります。</li>
+</ul>`,
+  tasks:[
+    {t:`1行目に ${k('<!DOCTYPE html>')} を書き、${k('<html lang="ja">')} で全体を囲む`,c:'<!DOCTYPE html>  <!\x2d- HTML5で書く、という宣言 -->\n<html lang="ja">  <!\x2d- 全体を囲む。日本語のページ -->\n  ……全部ここに入る……\n</html>  <!\x2d- 全体の終わり -->',f:c=>/^\s*(<!-{2}[\s\S]*?-{2}>\s*)*<!doctype html>/i.test(c.files['index.html'])&&c.doc.documentElement.lang==='ja'},
+    {t:`${k('<head>')} の中に ${k('<meta charset="UTF-8">')} と ${k('<title>')} を入れる`,c:'<head>  <!\x2d- ページの情報（画面には出ない） -->\n  <meta charset="UTF-8">  <!\x2d- 文字化けを防ぐ -->\n  <title>ページの題名</title>  <!\x2d- タブに出る名前 -->\n</head>',f:c=>{const m=c.q('head meta[charset]');return !!m&&/utf-?8/i.test(m.getAttribute('charset'))&&!!c.q('head title')&&c.txt(c.q('head title'))!==''}},
+    {t:`${k('<body>')} で見える内容を囲み、h1 を自分のページ名に書き換える`,c:'<body>  <!\x2d- 画面に見える内容はここ -->\n  <h1>ページ名</h1>  <!\x2d- 大きな見出し -->\n  <p>こんにちは</p>  <!\x2d- 文章（段落） -->\n</body>',f:c=>{const h=c.q('body h1');return !!h&&c.txt(h)!==''&&c.txt(h)!=='はじめてのWebページ'}}
+  ],
+  hint:`上の骨格の例をそのまま写して、${k('<body>')} の中に今ある h1 と p を入れます。閉じタグ（${k('</html>')} など）も忘れずに。`,
+  sol:{files:{'index.html':'<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n  <title>さくらの観察日記</title>\n</head>\n<body>\n  <h1>さくらの観察日記</h1>\n  <p>これが最初のページです。</p>\n</body>\n</html>\n'}}
+});
+
+LESSONS.push({
+  id:'structure', req:1, short:'文章の構造', title:'見出し・リスト・ページの区切り',
+  open:'index.html', page:'index.html',
+  files:{'index.html':'<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n  <title>週末のカレー</title>\n</head>\n<body>\n  <!\x2d- header：ページの上。h1 を入れる -->\n  <h1>週末のカレー</h1>\n  <!\x2d- main：主な内容。見出し（h2）とリストを入れる -->\n  <p>材料</p>\n  <p>玉ねぎ</p>\n  <p>じゃがいも</p>\n  <p>カレールー</p>\n  <p>作り方</p>\n  <p>野菜を切る</p>\n  <p>炒めて煮込む</p>\n  <p>ルーを溶かす</p>\n  <!\x2d- footer：ページの下。ひとこと入れる -->\n</body>\n</html>\n'},
+  body:`
+<p>見た目が同じでも、HTMLでは<strong>意味に合ったタグ</strong>を選びます。検索エンジンや読み上げソフトに構造が伝わるからです。</p>
+<ul>
+<li>${k('<h2>')}：${k('<h1>')} の下の見出し（h1 はページに1つ）</li>
+<li>${k('<ul>')} と ${k('<li>')}：順番のない箇条書き</li>
+<li>${k('<ol>')} と ${k('<li>')}：順番のあるリスト（手順など）</li>
+<li>${k('<header>')} ${k('<main>')} ${k('<footer>')}：ページの上部・主な内容・下部</li>
+</ul>
+${ex('<ul>\n  <li>りんご</li>\n  <li>みかん</li>\n</ul>')}
+<p>今のページは全部 ${k('<p>')} になっています。意味ごとに直しましょう。</p>
+<h3>なぜ意味に合ったタグを選ぶのか</h3>
+<ul>
+<li><strong>なぜ全部 p ではだめなのか</strong>：見た目は後からCSSでいくらでも変えられますが、「これは見出し」「これはリスト」という<strong>意味</strong>は、タグでしか伝えられません。</li>
+<li><strong>誰に伝わるのか</strong>：目の見えない人が使う読み上げソフトは、見出しやリストをたどって、ページの目次のように使います。検索エンジンも、見出しでページの内容をつかみます。</li>
+<li><strong>なぜ h1 は1つなのか</strong>：本の表紙のタイトルと同じで、そのページの題名だからです。章の見出しが h2、その中の見出しが h3 と、順に深くなります。</li>
+<li><strong>ul と ol の違い</strong>：順番に意味があるかどうかです。材料のように順番がなければ ul、手順のように順番が大事なら ol です。</li>
+<li><strong>なぜ header・main・footer なのか</strong>：箱を並べるだけだと、どこが主な内容か分かりません。名前で役割を伝えると、人にも読み上げソフトにも分かりやすくなります。</li>
+</ul>`,
+  tasks:[
+    {t:`材料の3行を ${k('<ul>')} と ${k('<li>')} のリストにする`,c:'<ul>  <!\x2d- 順番のないリストの入れ物 -->\n  <li>玉ねぎ</li>  <!\x2d- 1項目ぶん（これを行の数だけ） -->\n  <li>じゃがいも</li>\n</ul>',f:c=>c.qa('ul li').length>=3},
+    {t:`作り方の3行を ${k('<ol>')} と ${k('<li>')} のリストにする`,c:'<ol>  <!\x2d- 順番のあるリストの入れ物 -->\n  <li>野菜を切る</li>  <!\x2d- 1番目 -->\n  <li>煮込む</li>  <!\x2d- 2番目 -->\n</ol>',f:c=>c.qa('ol li').length>=3},
+    {t:`${k('<header>')}・${k('<main>')}・${k('<footer>')} でページを区切る`,c:'<header>  <!\x2d- ページの上の部分 -->\n  <h1>ページ名</h1>\n</header>\n<main>  <!\x2d- このページの主な内容 -->\n  ……見出しやリスト……\n</main>\n<footer>  <!\x2d- ページの下の部分 -->\n  <p>ひとこと</p>\n</footer>',f:c=>!!c.q('header h1')&&!!c.q('main')&&!!c.q('footer')}
+  ],
+  hint:`「材料」の行は ${k('<p>材料</p>')} を ${k('<h2>材料</h2>')} に、続く3行は ${k('<ul>')} で囲んで各行を ${k('<li>')} にします。作り方は ${k('<ol>')} で同じようにします。`,
+  sol:{files:{'index.html':'<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n  <title>週末のカレー</title>\n</head>\n<body>\n  <header>\n    <h1>週末のカレー</h1>\n  </header>\n  <main>\n    <h2>材料</h2>\n    <ul>\n      <li>玉ねぎ</li>\n      <li>じゃがいも</li>\n      <li>カレールー</li>\n    </ul>\n    <h2>作り方</h2>\n    <ol>\n      <li>野菜を切る</li>\n      <li>炒めて煮込む</li>\n      <li>ルーを溶かす</li>\n    </ol>\n  </main>\n  <footer>\n    <p>週末の料理メモ</p>\n  </footer>\n</body>\n</html>\n'}}
+});
+
+LESSONS.push({
+  id:'links', req:1, short:'リンクと画像', title:'リンク・画像・ファイルの場所（パス）',
+  open:'index.html', page:'index.html', add:{'images/sea.svg':SEA},
+  files:{
+    'index.html':'<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n  <title>旅の記録</title>\n</head>\n<body>\n  <h1>旅の記録</h1>\n  <!\x2d- 画像：パスを images/ の中に直す。alt（説明）も書く -->\n  <img src="photo.svg" width="300">\n  <p>先週、山の上まで歩きました。</p>\n  <!\x2d- この行を、about.html へのリンクにする -->\n  <p>くわしい自己紹介はこちら。</p>\n  <!\x2d- この行を、外部サイトへのリンクにする（https://〜、別タブで開く） -->\n  <p>調べものはこちら。</p>\n</body>\n</html>\n',
+    'about.html':'<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n  <title>自己紹介</title>\n</head>\n<body>\n  <h1>自己紹介</h1>\n  <p>山歩きと写真が好きです。</p>\n</body>\n</html>\n',
+    'images/photo.svg':PHOTO,
+    'images/sea.svg':SEA
+  },
+  body:`
+<p>タグの開始タグの中に<strong>属性</strong>を書くと、情報を足せます。形は <code>名前="値"</code> です。</p>
+<ul>
+<li>${k('<a href="行き先">文字</a>')}：リンク</li>
+<li>${k('<img src="場所" alt="説明">')}：画像（終了タグなし）。alt は読み上げや、画像が出ないときに使われる説明</li>
+</ul>
+<h3>ファイルの場所の書き方（相対パス）</h3>
+<p>今いるファイルから見て、目的のファイルがどこにあるかを書きます。</p>
+${ex('about.html          同じフォルダの about.html\nimages/photo.svg   images フォルダの中\n../index.html      1つ上のフォルダ')}
+<p>パスを間違えると画像は表示されません。ファイル一覧の位置とパスを見比べるのがコツです。プレビュー内のリンクはクリックして移動できます。</p>
+<p>他のサイトへは ${k('https://')} から始まるURLを書き、${k('target="_blank"')} で別タブに開きます。</p>
+<h3>なぜそう書くのか</h3>
+<ul>
+<li><strong>なぜ alt が必要なのか</strong>：画像が表示できないとき（通信が遅い、パスの間違い）や、読み上げソフトで聞くときに、代わりに伝わる説明だからです。</li>
+<li><strong>なぜ「相対パス」で書くのか</strong>：自分のPCの住所（${k('C:\\Users\\...')} など）で書くと、公開したときや他の人のPCでは見つかりません。「このファイルから見てどこにあるか」で書けば、フォルダごと動かしても壊れません。</li>
+<li><strong>なぜ ../ があるのか</strong>：今いるフォルダから、1つ外（上）のフォルダに出るためです。css フォルダの中から images を指すときなどに使います。</li>
+<li><strong>画像が出ないときは</strong>：まず、パスとファイル名を、ファイル一覧と見比べます。大文字小文字や拡張子の違いが、よくある原因です。</li>
+</ul>`,
+  tasks:[
+    {t:`画像のパスを直して、写真を表示する（ヒント：${k('images/')}）`,c:'<!\x2d- src：画像の場所（images フォルダの中の photo.svg）。width：横幅 -->\n<img src="images/photo.svg" width="300">',f:c=>{const i=c.q('img');return !!i&&i.naturalWidth>0}},
+    {t:`画像に説明文をつける（${k('alt')}）`,n:'{{画像が出なかったり}}、目の見えない人が読み上げで聞くときに使う「写真の説明」です。左の index.html の <img ...> の中に、{{alt="説明"}} を1つ足します。width の前に入れればOKです。',c:'<!\x2d- alt="…" が、画像の説明文 -->\n<img src="images/photo.svg" alt="山と太陽の風景" width="300">',f:c=>{const i=c.q('img');return !!i&&(i.getAttribute('alt')||'').trim()!==''}},
+    {t:`「くわしい自己紹介はこちら。」をクリックすると about.html に飛ぶようにする`,n:'index.html の中の、その1行の文字を {{<a href="about.html">}} と {{</a>}} ではさみます。a タグは「クリックできる文字」を作るタグです。右のプレビューで、文字が青い下線つきになれば成功。',c:'<!\x2d- href：行き先のファイル。a と /a ではさんだ文字がリンクになる -->\n<a href="about.html">自己紹介</a>',f:c=>c.qa('a').some(a=>a.getAttribute('href')==='about.html'&&c.txt(a)!=='')},
+    {t:`about.html から index.html に戻れるようにする`,n:'①左のファイル一覧で {{about.html}} をクリックして開く　②<body> の中の好きな場所に、下の1行を足す。さっきの逆向きのリンクです（行き先が {{index.html}} になるだけ）。',c:'<!\x2d- about.html の body の中に書く。行き先は index.html -->\n<a href="index.html">トップへ戻る</a>',page:'about.html', f:c=>c.qa('a').some(a=>a.getAttribute('href')==='index.html'&&c.txt(a)!=='')},
+    {t:`もう1枚、別の画像を表示してみる（やってみたい人向け）`,n:'{{images}} フォルダに sea.svg（海の絵）を用意しました。index.html に <img> をもう1つ足して表示します。{{sea.svg}} の部分を書き換えるだけで、さっきと同じ形です。',c:'<!\x2d- さっきと同じ形。ファイル名を sea.svg にするだけ -->\n<img src="images/sea.svg" alt="夕日の海" width="300">',f:c=>/<img\b[^>]*\bsrc\s*=\s*["']images\/sea\.svg["']/i.test(c.files['index.html']||'')&&c.qa('img').filter(i=>i.naturalWidth>0).length>=2}
+  ],
+  hint:`画像は ${k('<img src="images/photo.svg" alt="山の風景">')}。リンクは ${k('<a href="about.html">自己紹介</a>')} のように書きます。about.html を編集するには、左のファイル一覧からクリックします。`,
+  sol:{files:{
+    'index.html':'<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n  <title>旅の記録</title>\n</head>\n<body>\n  <h1>旅の記録</h1>\n  <img src="images/photo.svg" alt="山と太陽の風景" width="300">\n  <img src="images/sea.svg" alt="夕日の海" width="300">\n  <p>先週、山の上まで歩きました。</p>\n  <p><a href="about.html">くわしい自己紹介</a>はこちら。</p>\n  <p><a href="https://developer.mozilla.org/ja/" target="_blank">MDN Web Docs</a>で調べものができます。</p>\n</body>\n</html>\n',
+    'about.html':'<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n  <title>自己紹介</title>\n</head>\n<body>\n  <h1>自己紹介</h1>\n  <p>山歩きと写真が好きです。</p>\n  <p><a href="index.html">トップへ戻る</a></p>\n</body>\n</html>\n',
+    'images/photo.svg':PHOTO,'images/sea.svg':SEA}}
+});
+
+const HTML_HEAD='<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n';
+const LINK_CSS='  <link rel="stylesheet" href="css/main.css">\n';
+const CARDS_BODY='<body>\n  <h1>3つのプラン</h1>\n  <div class="cards">\n    <div class="card"><h2>無料</h2><p>0円</p></div>\n    <div class="card"><h2>標準</h2><p>500円</p></div>\n    <div class="card"><h2>応援</h2><p>1,000円</p></div>\n  </div>\n</body>\n</html>\n';
+
+LESSONS.push({
+  id:'css', req:1, short:'CSS入門', title:'CSSで色と文字を整える',
+  open:'index.html', page:'index.html',
+  files:{
+    'index.html':HTML_HEAD+'  <title>やさしい休日</title>\n  <!\x2d- ここに link タグで css/main.css を読み込む -->\n</head>\n<body>\n  <h1>やさしい休日</h1>\n  <p class="lead">朝はゆっくりコーヒーを淹れます。</p>\n  <p>午後は本を読んで、夕方に少し歩きます。</p>\n</body>\n</html>\n',
+    'css/main.css':'body {\n  font-family: sans-serif;\n}\n\n/* ここに h1 や p のルールを足していきます */\n'
+  },
+  body:`
+<p>HTMLは「ここは見出し」「ここは文章」と<strong>中身</strong>を書くものでした。<strong>CSS</strong>は、その中身の<strong>見た目</strong>（色・大きさなど）を決める言葉です。</p>
+<p>CSSは、HTMLとは別のファイル ${k('css/main.css')} に書きます。やることは2つだけです。</p>
+<h3>1. HTMLから main.css を呼び出す</h3>
+<p>index.html の ${k('<head>')} の中に、次の1行を書きます。「この見た目の設定ファイルを使ってね」という合図です。</p>
+${ex('<head>\n  <meta charset="UTF-8">\n  <title>やさしい休日</title>\n  <link rel="stylesheet" href="css/main.css">\n</head>')}
+<p>${k('href="css/main.css"')} は、前のレッスンのパスと同じで「css フォルダの中の main.css」という意味です。</p>
+<h3>2. main.css に見た目を書く</h3>
+<p>3つの部分でできています。</p>
+${ex('h1 {\n  color: royalblue;\n}\n\n↑ h1 { ... }  ：「h1 の見た目は、{ } の中のとおり」\n↑ color       ：何を変えるか（ここでは文字の色）\n↑ royalblue   ：どう変えるか（青）')}
+<ul>
+<li><strong>どこを変えるか</strong>：${k('h1')} のようにタグの名前を書くと、そのタグ全部が変わります。</li>
+<li><strong>何を変えるか</strong>：${k('color')} は文字の色、${k('font-size')} は文字の大きさです。</li>
+<li><strong>どう変えるか</strong>：${k('color: royalblue;')} のように、「:」のあとに値を書きます。</li>
+</ul>
+<p>1行ごとに最後の ${k(';')}（セミコロン）を付けます。忘れると、その行から効かなくなります。</p>
+<p>先にHTMLを書いておいた ${k('<p class="lead">')} の ${k('lead')} は、1つの段落だけに付けた目印です。CSSでは ${k('.lead { ... }')} のように、先頭にピリオドを付けて呼び出せます。（課題には使いません）</p>
+<h3>なぜ HTML と CSS を分けるのか</h3>
+<p>色や大きさを HTML に直接書くこともできますが、ページが増えると全部のページを直す手間がかかります。CSSを別ファイルにして全ページから読み込めば、${k('main.css')} <strong>1か所を直すだけ</strong>で、サイト全体の見た目が変わります。</p>
+<h3>どこを変えるかの書き方（セレクタ）の違い</h3>
+${ex('h1 { ... }      タグの名前：そのタグ「全部」\n.lead { ... }   class（目印）：目印を付けた要素だけ\n#msg { ... }    id（名札）：その1つだけ')}
+<p>迷ったら、まずタグの名前で書きます。「この段落だけ変えたい」ときに、HTMLへ ${k('class="lead"')} を付けて ${k('.lead')} で呼び出します。</p>
+<h3>色の書き方は3通り</h3>
+${ex('color: royalblue;       名前（覚えやすい）\ncolor: #2a4a8a;         16進数（細かく選べる。現場で一番よく使う）\ncolor: rgb(42, 74, 138); 赤・緑・青の量')}
+<p>どれも同じ色を表せます。VS Code では、色の文字の横に色見本が出ます。</p>`,
+  tasks:[
+    {t:`index.html から main.css を呼び出す（${k('<link>')} を1行足す）`,n:'①左のファイル一覧で {{index.html}} を開く　②{{<head>}} と {{</head>}} のあいだに、下の1行を足す。コメント（<!\x2d- -->）の行は、消してもそのままでもOKです。',c:'<!\x2d- rel：これはCSSです、という意味。href：CSSファイルの場所 -->\n<link rel="stylesheet" href="css/main.css">',f:c=>/<link\b[^>]*\bhref\s*=\s*["']css\/main\.css["'][^>]*>/i.test((c.files['index.html']||'').replace(/<!-{2}[\s\S]*?-{2}>/g,''))},
+    {t:`見出し（h1）の文字の色を変える`,n:'①左のファイル一覧で {{css/main.css}} を開く　②一番下に、下の3行を足す。{{#2a4a8a}} は色の書き方の1つです。royalblue のような色の名前でもOKです。',c:'/* h1（見出し）全部の見た目 */\nh1 {\n  color: #2a4a8a;  /* 文字の色 */\n}',f:c=>c.cs(c.q('h1'),'color')!=='rgb(0, 0, 0)'},
+    {t:`文章（p）の文字を大きくする`,n:'同じ {{css/main.css}} の一番下に足します。{{18px}} は文字の大きさです。数字を大きくすると、プレビューの文字も大きくなります。',c:'/* p（文章）全部の見た目 */\np {\n  font-size: 18px;  /* 文字の大きさ */\n}',f:c=>c.px(c.q('p'),'fontSize')>=18}
+  ],
+  hint:`まず index.html に ${k('<link rel="stylesheet" href="css/main.css">')} を追加します。つぎに main.css を開き、${k('h1 { color: #2a4a8a; }')} のように書きます。`,
+  sol:{files:{
+    'index.html':HTML_HEAD+'  <title>やさしい休日</title>\n'+LINK_CSS+'</head>\n<body>\n  <h1>やさしい休日</h1>\n  <p class="lead">朝はゆっくりコーヒーを淹れます。</p>\n  <p>午後は本を読んで、夕方に少し歩きます。</p>\n</body>\n</html>\n',
+    'css/main.css':'body {\n  font-family: sans-serif;\n  background-color: #eef3fb;\n}\n\nh1 {\n  color: #2a4a8a;\n}\n\np {\n  font-size: 18px;\n}\n\n.lead {\n  font-weight: 700;\n}\n'}}
+});
+
+LESSONS.push({
+  id:'box', req:1, short:'ボックスモデル', title:'余白と枠線：ボックスモデル',
+  open:'css/main.css', page:'index.html', w:800,
+  files:{
+    'index.html':HTML_HEAD+'  <title>おすすめ</title>\n'+LINK_CSS+'</head>\n<body>\n  <div class="card">\n    <h2>今日のおすすめ</h2>\n    <p>余白と枠線を足すと、文字のかたまりが「箱」に見えてきます。</p>\n  </div>\n</body>\n</html>\n',
+    'css/main.css':'body {\n  font-family: sans-serif;\n  margin: 0;\n  padding: 24px;\n}\n\n.card {\n  background-color: #eef3ff;\n  /* ここに padding や border を足す */\n}\n'
+  },
+  body:`
+<p>Webページの要素は、見た目がどうであれ、すべて<strong>四角い箱</strong>です。見出しも文章も画像も箱で、CSSの仕事の大半は「箱の大きさや間隔を決める」ことです。箱は内側から4つの層でできています。</p>
+<svg class="bm" viewBox="0 0 300 190" role="img" aria-label="外側から margin、border、padding、content の順に重なった箱の図">
+<rect class="m" x="1" y="1" width="298" height="188" rx="4"/>
+<rect class="b" x="36" y="30" width="228" height="130" rx="4"/>
+<rect class="p" x="52" y="46" width="196" height="98"/>
+<rect class="c" x="84" y="72" width="132" height="46"/>
+<text x="8" y="16">margin（外側の余白）</text>
+<text class="on" x="44" y="42">border（枠線）</text>
+<text x="58" y="62">padding（内側の余白）</text>
+<text x="150" y="99" text-anchor="middle">content</text>
+</svg>
+<ul>
+<li>${k('padding')}：文字と枠線のあいだ</li>
+<li>${k('border')}：枠線。${k('border: 2px solid navy;')}（太さ・種類・色）</li>
+<li>${k('margin')}：箱の外側のすき間</li>
+<li>${k('border-radius')}：角の丸み</li>
+</ul>
+<h3>padding と margin の違い</h3>
+<p>どちらも「余白」ですが、<strong>枠線の内側か外側か</strong>が違います。</p>
+${ex('padding：枠線の内側。背景色が「付く」。箱が大きくなる\nmargin ：枠線の外側。背景色は「付かない」。他の箱との距離になる')}
+<p>覚え方：カードの中で文字がくっついて窮屈なら ${k('padding')}、カードどうしがくっついているなら ${k('margin')} です。</p>
+<h3>なぜ 20px のように単位が付くのか</h3>
+<p>${k('px')} は画面の点（ピクセル）の数です。数字だけではどんな長さか分からないので、単位を必ず書きます。${k('0')} だけは単位を省けます。</p>
+<p>今回は ${k('css/main.css')} だけ書き換えます。</p>`,
+  tasks:[
+    {t:`${k('.card')} に ${k('padding')} を 16px 以上つける`,c:'.card {\n  padding: 20px;  /* 枠線の内側の余白 */\n}',f:c=>c.px(c.q('.card'),'paddingTop')>=16},
+    {t:`${k('.card')} に ${k('border')} を付ける（太さ1px以上）`,c:'/* .card { } の中に足す */\nborder: 2px solid #2a4a8a;  /* 太さ・線の種類・色 */',f:c=>{const e=c.q('.card');return c.px(e,'borderTopWidth')>=1&&c.cs(e,'borderTopStyle')!=='none'}},
+    {t:`${k('border-radius')} で角を丸くする`,c:'/* .card { } の中に足す */\nborder-radius: 12px;  /* 角の丸み */',f:c=>c.px(c.q('.card'),'borderTopLeftRadius')>0}
+  ],
+  hint:`${k('.card { padding: 20px; border: 2px solid #2a4a8a; border-radius: 12px; max-width: 400px; margin: 0 auto; }')} のように、${k('.card')} の { } の中に1行ずつ足します。`,
+  sol:{files:{'css/main.css':'body {\n  font-family: sans-serif;\n  margin: 0;\n  padding: 24px;\n}\n\n.card {\n  background-color: #eef3ff;\n  padding: 20px;\n  border: 2px solid #2a4a8a;\n  border-radius: 12px;\n  max-width: 400px;\n  margin: 0 auto;\n}\n'}}
+});
+
+LESSONS.push({
+  id:'flex', req:1, short:'Flexbox', title:'横に並べる：Flexbox',
+  open:'css/main.css', page:'index.html', w:800,
+  files:{
+    'index.html':HTML_HEAD+'  <title>プラン</title>\n'+LINK_CSS+'</head>\n'+CARDS_BODY,
+    'css/main.css':'body {\n  font-family: sans-serif;\n  margin: 0;\n  padding: 24px;\n}\n\n/* ここに .cards のルール（display: flex など）を書く */\n\n.card {\n  background-color: #eef3ff;\n  padding: 16px;\n  border-radius: 8px;\n}\n'
+  },
+  body:`
+<p>初期状態では、要素は上から下へ縦に積まれます。<strong>Flexbox</strong>を使うと、横並びや均等配置が簡単にできます。</p>
+<h3>まず注意：.cards と .card は別もの</h3>
+<p>名前が似ていますが、末尾の ${k('s')} があるかないかで別のものを指します。</p>
+${ex('<!\x2d- 親：3枚をまとめて入れる箱 -->\n<div class="cards">\n  <!\x2d- 子：カード1枚（これが3つ） -->\n  <div class="card">…</div>\n  <div class="card">…</div>\n  <div class="card">…</div>\n</div>')}
+<ul>
+<li>${k('.cards')}（sあり）：3枚をまとめる<strong>親</strong>。横に並べる設定は、ここに書きます。</li>
+<li>${k('.card')}（sなし）：<strong>1枚ぶん</strong>の見た目（背景・余白・角丸）。もう書いてあります。</li>
+</ul>
+<p>${k('display: flex')} は、<strong>並べたいものを包む親（.cards）</strong>に書きます。${k('.card')} には書きません。</p>\n<p>もし ${k('.card')} にも ${k('display: flex')} を書くと、カードの中の見出しと文章まで<strong>横に並んで</strong>しまい、表示がずれます。ずれたら、${k('.card')} の中の ${k('display: flex')} を消します。</p>
+${ex('.cards {\n  display: flex;             /* 中を横に並べる */\n  gap: 16px;                 /* すき間 */\n  justify-content: center;   /* 横方向の配置：中央 */\n}')}
+<ul>
+<li>${k('display: flex')}：中身を横に並べる</li>
+<li>${k('gap')}：要素どうしのすき間</li>
+<li>${k('justify-content')}：横方向の配置（${k('center')} 中央、${k('space-between')} 両端など）</li>
+<li>${k('flex-direction: column')}：縦並びに戻す</li>
+</ul>
+<h3>なぜ flex を使うのか</h3>
+<p>何も書かないと、見出しや段落のような要素は<strong>上から下へ1つずつ積まれます</strong>（1行を1つの要素が使うため）。横に並べたいときは、並べたいものを包む親に ${k('display: flex')} と書くと、中の子が横並びになります。昔は別の難しい方法を使っていましたが、今は flex が標準です。</p>
+<h3>gap と margin の違い</h3>
+${ex('gap    ：親に書く。子と子の「あいだだけ」に隙間ができる\nmargin ：子に書く。子の外側（端も含む）に余白ができる')}
+<p>カードを並べるときは、端に余計な余白が付かない ${k('gap')} のほうが扱いやすいです。</p>
+<h3>justify-content と align-items の違い</h3>
+<p>flex には「並ぶ向き」と「それと直角の向き」があります。横並びのとき、${k('justify-content')} は<strong>横方向</strong>の配置、${k('align-items')} は<strong>縦方向</strong>の配置です。（${k('flex-direction: column')} にすると、向きが入れ替わります）</p>
+<p>${k('index.html')} は書き換えず、main.css に ${k('.cards')} のルールを足します。</p>`,
+  tasks:[
+    {t:`${k('.cards')} を ${k('display: flex')} にして、3枚のカードを横1列に並べる`,n:'main.css に {{.cards}}（sあり）のルールを新しく足します。すでにある {{.card}}（sなし）の中には書きません。',c:'.cards {\n  display: flex;  /* 中のカードを横に並べる */\n}',f:c=>{const r=c.qa('.card').map(e=>e.getBoundingClientRect().top);return c.cs(c.q('.cards'),'display')==='flex'&&r.length>=3&&r.every(t=>Math.abs(t-r[0])<2)}},
+    {t:`${k('gap')} でカードのあいだを 12px 以上あける`,c:'/* .cards { } の中に足す */\ngap: 16px;  /* カードのあいだのすき間 */',f:c=>c.px(c.q('.cards'),'columnGap')>=12},
+    {t:`${k('justify-content')} で並びを中央寄せや均等配置にする`,c:'/* .cards { } の中に足す */\njustify-content: center;  /* 横方向の配置：中央寄せ */',f:c=>!['normal','flex-start','start','stretch'].includes(c.cs(c.q('.cards'),'justifyContent'))}
+  ],
+  hint:`${k('.cards')} というセレクタを新しく作り、{ } の中に ${k('display: flex;')} と ${k('gap: 16px;')}、${k('justify-content: center;')} を書きます。`,
+  sol:{files:{'css/main.css':'body {\n  font-family: sans-serif;\n  margin: 0;\n  padding: 24px;\n}\n\n.cards {\n  display: flex;\n  gap: 16px;\n  justify-content: center;\n}\n\n.card {\n  background-color: #eef3ff;\n  padding: 16px;\n  border-radius: 8px;\n}\n'}}
+});
+
+LESSONS.push({
+  id:'responsive', req:1, short:'スマホ対応', title:'スマホ画面にも対応する',
+  open:'css/main.css', page:'index.html', w:800,
+  files:{
+    'index.html':HTML_HEAD+'  <title>プラン</title>\n'+LINK_CSS+'  <!\x2d- ここに viewport の meta タグ -->\n</head>\n'+CARDS_BODY,
+    'css/main.css':'body {\n  font-family: sans-serif;\n  margin: 0;\n  padding: 24px;\n}\n\n.cards {\n  display: flex;\n  gap: 16px;\n}\n\n.card {\n  flex: 1;\n  background-color: #eef3ff;\n  padding: 16px;\n  border-radius: 8px;\n}\n\n/* ここに @media を書く */\n'
+  },
+  body:`
+<p>同じページが、パソコンでもスマホでも見られます。でも、パソコン用に横3列で作ったカードは、スマホでは1枚が細くなりすぎます。そこで、<strong>画面が狭いときだけ別のルールを使う</strong>仕組みが<strong>レスポンシブ</strong>です。</p>
+<h3>1. viewport を指定する</h3>
+<p>スマホのブラウザは、何も指定がないと「パソコン用のページだろう」と考えて、広い画面を縮めて表示します。「実際の画面幅のまま表示して」と伝えるタグを、${k('<head>')} に書きます。</p>
+${ex('<meta name="viewport" content="width=device-width, initial-scale=1.0">')}
+<p>これがないと、次の @media がスマホで効きません。</p>
+<h3>2. @media で画面幅ごとにルールを変える</h3>
+${ex('/* 画面幅が600px以下のときだけ */\n@media (max-width: 600px) {\n  .cards {\n    flex-direction: column;   /* 縦に積む */\n  }\n}')}
+<p>「画面幅が 600px <strong>以下</strong>のときだけ、{ } の中のルールを使う」という意味です。外側が条件（@media）、内側がいつもの CSS（.cards { ... }）の<strong>入れ子</strong>になっています。</p>
+<ul>
+<li>${k('flex-direction: column')}：横並びをやめて縦に積む</li>
+<li>${k('max-width')}：「〜以下」のとき。スマホ向けを後から足す書き方で、よく使います</li>
+<li>${k('min-width')}：「〜以上」のとき。逆に、広い画面向けを足すときに使います</li>
+</ul>
+<h3>なぜ @media を一番下に書くのか</h3>
+<p>同じ要素に2つのルールがぶつかると、<strong>あとに書いたほうが勝ちます</strong>。@media を先に書くと、あとの普通のルールに上書きされて、効かなくなることがあります。</p>
+<p>プレビュー右上の<strong>スマホ幅</strong>ボタンで、幅375pxの見え方を確認できます。（<strong>PC幅</strong>は1024pxで表示します）</p>`,
+  tasks:[
+    {t:`index.html の ${k('<head>')} に viewport の ${k('<meta>')} を入れる`,c:'<!\x2d- スマホで実際の画面幅のまま表示する。head の中に書く -->\n<meta name="viewport" content="width=device-width, initial-scale=1.0">',f:c=>!!c.q('meta[name="viewport"]')},
+    {t:`幅360pxの画面では、カードが縦に並ぶ（${k('@media')} と ${k('flex-direction: column')}）`,c:'/* 画面幅が600px以下のときだけ、中のルールを使う */\n@media (max-width: 600px) {\n  .cards {\n    flex-direction: column;  /* 横並びをやめて縦に積む */\n  }\n}',w:360, f:c=>{const r=c.qa('.card').map(e=>e.getBoundingClientRect().top);return r.length>=3&&r[1]>r[0]+5&&r[2]>r[1]+5}}
+  ],
+  hint:`CSSの一番下に ${k('@media (max-width: 600px) { .cards { flex-direction: column; } }')} を書きます。{ } の入れ子（外側が @media、内側が .cards）に注意します。`,
+  sol:{files:{
+    'index.html':HTML_HEAD+'  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>プラン</title>\n'+LINK_CSS+'</head>\n'+CARDS_BODY,
+    'css/main.css':'body {\n  font-family: sans-serif;\n  margin: 0;\n  padding: 24px;\n}\n\n.cards {\n  display: flex;\n  gap: 16px;\n}\n\n.card {\n  flex: 1;\n  background-color: #eef3ff;\n  padding: 16px;\n  border-radius: 8px;\n}\n\n@media (max-width: 600px) {\n  .cards {\n    flex-direction: column;\n  }\n}\n'}}
+});
+
+LESSONS.push({
+  id:'js1', req:1, short:'JavaScript①', title:'JavaScript：ボタンで動かす',
+  open:'js/main.js', page:'index.html', w:800, fresh:true,
+  files:{
+    'index.html':HTML_HEAD+'  <title>ボタン</title>\n'+LINK_CSS+'</head>\n<body>\n  <h1>ボタンで変わるページ</h1>\n  <button id="btn">押してね</button>\n  <p id="msg">まだ押されていません</p>\n  <!\x2d- ここに script タグ（body の終わりの直前） -->\n</body>\n</html>\n',
+    'css/main.css':'body {\n  font-family: sans-serif;\n  padding: 24px;\n}\n\nbutton {\n  font-size: 18px;\n  padding: 8px 20px;\n}\n\n#msg {\n  font-size: 20px;\n}\n',
+    'js/main.js':'const btn = document.getElementById("btn");\nconst msg = document.getElementById("msg");\n\nbtn.addEventListener("click", () => {\n  // ここに、ボタンを押したときの動きを書く\n});\n'
+  },
+  body:`
+<p>HTMLが「内容」、CSSが「見た目」なら、<strong>JavaScript</strong>は「動き」です。ファイルは ${k('js/main.js')} に置き、HTMLから読み込みます。</p>
+${ex('<script src="js/main.js"><\/script>')}
+<p>${k('</body>')} の直前に書きます。JavaScriptが動くとき、探したいボタンや文章がもう読み込まれている必要があるからです。</p>
+<h3>なぜボタンを押すと文字が変わるのか</h3>
+<p>ブラウザはHTMLを読むと、タグの1つ1つを「部品（要素）」としてメモリに作ります。JavaScriptは、その部品を<strong>手に入れて、中身を書き換える</strong>ことができます。順番は3つです。</p>
+<ol>
+<li><strong>部品を手に入れる</strong>：HTMLの ${k('id="msg"')} が付いた部品を探します</li>
+<li><strong>「押されたら」と登録しておく</strong>：クリックが起きたときの手順を先に渡しておきます</li>
+<li><strong>押されたら実行する</strong>：登録した手順が動いて、文字が書き換わります</li>
+</ol>
+${ex('// 1. 部品を手に入れて、名前（変数）を付けておく\nconst msg = document.getElementById("msg");\nconst btn = document.getElementById("btn");\n\n// 2. 「クリックされたら、{ } の中を実行する」と登録する\nbtn.addEventListener("click", () => {\n  // 3. 押されたときだけ実行される\n  msg.textContent = "押されました！";\n});')}
+<h3>変数とは</h3>
+<p>${k('const msg = ...')} の ${k('msg')} は<strong>変数</strong>です。値に名前を付けて、あとで使えるようにしまっておく「ラベル付きの箱」です。</p>
+<ul>
+<li>${k('const')}：あとで入れ替えない値（部品など）。こちらを基本にします</li>
+<li>${k('let')}：あとで変える値（回数など）。${k('let count = 0; count++;')} の ${k('count++')} は「1増やす」です</li>
+<li>${k('=')}：「等しい」ではなく<strong>「右の値を左の名前にしまう」</strong>という意味です</li>
+</ul>
+<h3>よくある間違い</h3>
+${ex('// ○ msg は変数（部品）\nmsg.textContent = "押されました！";\n\n// × "msg" はただの文字\n"msg".textContent = "押されました！";')}
+<p>${k('"')} で囲むと文字、囲まないと変数の名前になります。</p>
+<h3>覚えておく道具</h3>
+<ul>
+<li>${k('textContent')}：要素の文字。代入すると書き換わる</li>
+<li>${k('style.color')}：文字の色を変える（CSSの ${k('color')} と同じ。${k('background-color')} は ${k('style.backgroundColor')} のように書く）</li>
+<li>${k('"文字" + 数')}：文字と数をつなげる</li>
+<li>${k('() => { }')}：「あとで実行する手順のかたまり」（関数）。クリックされたときに動きます</li>
+</ul>
+<p>${k('console.log(値)')} を書くと、プレビュー下のコンソールに表示されます。エラーもここに出ます。動かないときは、まずここを見ます。</p>`,
+  tasks:[
+    {t:`ボタンを押すと ${k('#msg')} の文字が変わる（${k('<script>')} で main.js を読み込むのも忘れずに）`,c:'<!\x2d- index.html：</body> の直前に書く -->\n<script src="js/main.js"><\/script>\n\n// main.js：押されたときの { } の中に書く\nmsg.textContent = "押されました！";  // msg の文字を書き換える',f:c=>{const b=c.q('#btn'),m=c.q('#msg'),a=c.txt(m);b.click();return c.txt(m)!==''&&c.txt(m)!==a}},
+    {t:`押すと ${k('#msg')} の文字の色も変わる`,c:'// 押されたときの { } の中に足す\nmsg.style.color = "royalblue";  // 文字の色を変える',f:c=>{const b=c.q('#btn'),m=c.q('#msg'),a=c.cs(m,'color');b.click();return c.cs(m,'color')!==a}},
+    {t:'押すたびに表示が変わる（回数を数える）',c:'let count = 0;   // クリックの外に書く\n\ncount = count + 1;   // クリックの中に書く\nmsg.textContent = count + "回目";',f:c=>{const b=c.q('#btn'),m=c.q('#msg');b.click();const a=c.txt(m);b.click();const d=c.txt(m);return a!==''&&d!==''&&a!==d}}
+  ],
+  hint:`script タグは \`<script src="js/main.js"><\/script>\` の形です（\`</body>\` の直前）。main.js の中は \`msg.textContent = "押されました！";\` と \`msg.style.color = "royalblue";\` の2行を書きます。`,
+  sol:{files:{
+    'index.html':HTML_HEAD+'  <title>ボタン</title>\n'+LINK_CSS+'</head>\n<body>\n  <h1>ボタンで変わるページ</h1>\n  <button id="btn">押してね</button>\n  <p id="msg">まだ押されていません</p>\n  <script src="js/main.js"><\/script>\n</body>\n</html>\n',
+    'js/main.js':'const btn = document.getElementById("btn");\nconst msg = document.getElementById("msg");\nlet count = 0;\n\nbtn.addEventListener("click", () => {\n  count++;\n  msg.textContent = count + "回押されました";\n  msg.style.color = count % 2 === 0 ? "crimson" : "royalblue";\n});\n'}}
+});
+
+LESSONS.push({
+  id:'js2', req:1, adv:true, short:'発展JS', title:'発展：入力と条件分岐（余裕があれば）',
+  open:'js/main.js', page:'index.html', w:800, fresh:true,
+  files:{
+    'index.html':HTML_HEAD+'  <title>年齢チェック</title>\n'+LINK_CSS+'</head>\n<body>\n  <h1>年齢チェック</h1>\n  <label for="age">年齢</label>\n  <input id="age" type="number">\n  <button id="check">判定する</button>\n  <p id="result"></p>\n  <script src="js/main.js"><\/script>\n</body>\n</html>\n',
+    'css/main.css':'body {\n  font-family: sans-serif;\n  padding: 24px;\n}\n\ninput, button {\n  font-size: 16px;\n  padding: 6px 10px;\n}\n\n#result {\n  font-size: 20px;\n}\n',
+    'js/main.js':'const input = document.getElementById("age");\nconst btn = document.getElementById("check");\nconst result = document.getElementById("result");\n\nbtn.addEventListener("click", () => {\n  const age = Number(input.value);\n  // ここで if を使って result.textContent を書き換える\n});\n'
+  },
+  body:`
+<p>プログラムは、条件によって動きを分けられます。これが<strong>条件分岐</strong>です。「18歳以上なら成人、そうでなければ未成年」のように、日常の「もし〜なら」と同じ考え方です。</p>
+${ex('if (age >= 18) {\n  result.textContent = "成人です";\n} else {\n  result.textContent = "未成年です";\n}')}
+<p>${k('if (条件)')} の条件が正しいときだけ最初の { } が動き、そうでなければ ${k('else')} の { } が動きます。どちらか一方だけが動きます。</p>
+<ul>
+<li>${k('>=')} 以上　${k('<')} より小さい　${k('===')} 等しい</li>
+<li>${k('else if (条件) { }')}：さらに条件を足す</li>
+</ul>
+<h3>= と === の違い</h3>
+${ex('age = 18     「age に 18 をしまう」（代入）\nage === 18   「age は 18 と等しいか？」（比べる）')}
+<p>if の条件には、比べる ${k('===')} を使います。${k('=')} は代入なので間違えやすいところです。</p>
+<h3>入力欄の中身が「文字」で届く理由</h3>
+<p>${k('input.value')} は、数字を入れても<strong>文字として</strong>届きます。（${k('"17"')} と ${k('17')} は、見た目は同じでもコンピュータには別のものです）そのため、数と比べる前に ${k('Number()')} で数に変えます。</p>
+<p>入力が空のときは ${k('Number("")')} が 0 になってしまうので、先に空かどうかを調べます（${k('input.value === ""')}）。</p>
+<p>つぎの表示になるようにします。</p>
+<ul><li>空欄：「数字を入れてください」</li><li>18未満：「未成年です」</li><li>18以上：「成人です」</li></ul>`,
+  tasks:[
+    {t:'17と入力して押すと「未成年です」と出る',c:'if (age >= 18) {                         // もし 18 以上なら\n  result.textContent = "成人です";       // こちらを表示\n} else {                                // そうでなければ\n  result.textContent = "未成年です";     // こちらを表示\n}',f:c=>{c.q('#age').value='17';c.q('#check').click();return c.txt(c.q('#result')).includes('未成年')}},
+    {t:'18と入力して押すと「成人です」と出る（「未成年」は出ない）', f:c=>{c.q('#age').value='18';c.q('#check').click();const t=c.txt(c.q('#result'));return t.includes('成人')&&!t.includes('未成年')}}
+  ],
+  hint:`まず ${k('if (input.value === "") { ... return; }')} で空欄を処理し、そのあと ${k('if (age >= 18) { ... } else { ... }')} で分けます。${k('return;')} はそこで処理を終える命令です。`,
+  sol:{files:{'js/main.js':'const input = document.getElementById("age");\nconst btn = document.getElementById("check");\nconst result = document.getElementById("result");\n\nbtn.addEventListener("click", () => {\n  if (input.value === "") {\n    result.textContent = "数字を入れてください";\n    return;\n  }\n  const age = Number(input.value);\n  if (age >= 18) {\n    result.textContent = "成人です";\n  } else {\n    result.textContent = "未成年です";\n  }\n});\n'}}
+});
+
+LESSONS.push({
+  id:'motion', req:1, adv:true, short:'発展モーション', title:'発展：ライブラリで動きをつける（余裕があれば）',
+  open:'index.html', page:'index.html', w:800, fresh:true,
+  files:{
+    'index.html':HTML_HEAD+'  <title>モーション</title>\n'+LINK_CSS+'</head>\n<body>\n  <h1>動く四角</h1>\n  <div class="box"></div>\n  <!\x2d- ここに ライブラリの script タグ、そのあとに自分の main.js -->\n</body>\n</html>\n',
+    'css/main.css':'body {\n  font-family: sans-serif;\n  padding: 24px;\n}\n\n.box {\n  width: 80px;\n  height: 80px;\n  background-color: #2a4a8a;\n  border-radius: 12px;\n}\n',
+    'js/main.js':'// ここに anime({ ... }) を書く\n'
+  },
+  body:`
+<p>JavaScriptで動きを作るには、自分で一から書く方法のほかに、<strong>ライブラリ</strong>を使う方法があります。ライブラリは、誰かが作った「便利な部品集」です。少ない行で、なめらかな動きが作れます。</p>
+<h3>なぜライブラリを使うのか</h3>
+<p>1つ1つの動きを自分で計算して書くと、とても長くなります。たとえば「1.5秒かけて、ゆっくり始まって、ゆっくり止まる」動きは、ライブラリなら数行です。道具を借りて、自分は「何をどう動かすか」だけを書きます。</p>
+<h3>使い方は2ステップ</h3>
+<p>今回は <strong>anime.js</strong> という、動きに特化したライブラリを使います。</p>
+<ol>
+<li><strong>ライブラリを読み込む</strong>：インターネット上に置かれたファイルを、URLで指定して読み込みます（<strong>CDN</strong> と呼びます）。自分のPCにファイルを置かなくても使えます。</li>
+<li><strong>自分のコードで呼び出す</strong>：読み込んだ ${k('anime')} という名前の道具を使います。</li>
+</ol>
+${ex('<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"><\/script>\n<script src="js/main.js"><\/script>')}
+<p>2行の<strong>順番</strong>が大事です。ライブラリを先に読み込まないと、あとの main.js で ${k('anime')} が見つからず、エラーになります。</p>
+<h3>動かしてみる</h3>
+${ex('anime({\n  targets: ".box",\n  translateX: 250,\n  rotate: "1turn",\n  duration: 1500,\n  easing: "easeInOutQuad"\n});')}
+<ul>
+<li>${k('targets')}：どの要素を動かすか（CSSのセレクタと同じ書き方）</li>
+<li>${k('translateX')}：横に動かす距離（px）</li>
+<li>${k('rotate')}：回転。${k('"1turn"')} で1回転</li>
+<li>${k('duration')}：かかる時間（ミリ秒。1500 = 1.5秒）</li>
+<li>${k('easing')}：動きの加減速。始まりと終わりをゆっくりにするとなめらかに見える</li>
+<li>${k('loop: true')}：終わったら、また最初から始める（ずっと繰り返す）。${k('loop: 3')} なら3回です</li>
+<li>${k('direction: "alternate"')}：繰り返すとき、行きと帰りを交互に再生する。帰りは逆再生なので、四角が往復します。これがないと、右端から一瞬で左端に戻ります</li>
+</ul>
+<p class="note">動かないときは、検証の Console と Network を見ます。「anime is not defined」と出たら、ライブラリの読み込みが失敗しています（URLの間違い、読み込む順番、ネットワークの不調）。</p>`,
+  tasks:[
+    {t:`ライブラリを読み込む（${k('<script>')} を、main.js より前に書く）`,n:'①左のファイル一覧で {{index.html}} を開く　②コメントの場所に、下の2行を、この順番で足す。1行目がライブラリ、2行目が自分のJSです。',c:'<!\x2d- 1行目：ライブラリ（anime.js）を読み込む -->\n<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"><\/script>\n<!\x2d- 2行目：自分のJS。必ずライブラリのあと -->\n<script src="js/main.js"><\/script>',f:c=>{const h=(c.files['index.html']||'').replace(/<!-{2}[\s\S]*?-{2}>/g,''),a=h.search(/<script[^>]*src=["'][^"']*anime[^"']*["']/i),b=h.search(/<script[^>]*src=["']js\/main\.js["']/i);return a>=0&&b>a}},
+    {t:`${k('.box')} を横に動かす（${k('anime({ ... })')} を書く）`,n:'{{js/main.js}} を開いて、コメントの行を消し、下のコードを書きます。保存すると、プレビューで四角が動きます。',c:'anime({\n  targets: ".box",   // 動かす要素（CSSのセレクタ）\n  translateX: 250,    // 横に250px動く\n  duration: 1500      // 1.5秒かける\n});',f:c=>/anime\s*\(\s*\{[\s\S]*targets\s*:\s*["']\.box["'][\s\S]*translateX/.test(c.files['js/main.js']||'')},
+    {t:`回転や繰り返しも足す（${k('rotate')} と ${k('loop')}）`,n:'{{anime({ ... })}} の { } の中に、下の行を足します（行の終わりの {{,}}（カンマ）を忘れずに）。{{loop: true}} は「終わったらまた最初から始める」、{{direction: "alternate"}} は「行きと帰りを交互に再生する」という意味です。{{loop: true}} の行を消すと、1回で止まります。',c:'rotate: "1turn",         // 1回転する\nloop: true,          // 終わったら、また始める\ndirection: "alternate", // 行きは右へ、帰りは逆再生で左へ',f:c=>{const j=c.files['js/main.js']||'';return /rotate\s*:/.test(j)&&/loop\s*:\s*true/.test(j)}}
+  ],
+  hint:`index.html に、${k('<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"><\/script>')} を、${k('<script src="js/main.js"><\/script>')} よりも前に書きます。動きは main.js に書きます。`,
+  sol:{files:{
+    'index.html':HTML_HEAD+'  <title>モーション</title>\n'+LINK_CSS+'</head>\n<body>\n  <h1>動く四角</h1>\n  <div class="box"></div>\n  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"><\/script>\n  <script src="js/main.js"><\/script>\n</body>\n</html>\n',
+    'js/main.js':'anime({\n  targets: ".box",\n  translateX: 250,\n  rotate: "1turn",\n  duration: 1500,\n  easing: "easeInOutQuad",\n  loop: true,\n  direction: "alternate"\n});\n'}}
+});
+
+function SITE(v){
+  const menu='<nav class="menu">\n      <a href="index.html">トップ</a>\n      <a href="about.html">自己紹介</a>\n      <a href="likes.html">好きなもの</a>\n    </nav>';
+  const SCR='  <script src="js/main.js"><\/script>\n';
+  const page=(title,body)=>HTML_HEAD+'  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>'+title+'</title>\n'+LINK_CSS+'</head>\n<body>\n  <header>\n    <p class="site-name">'+v.site+'</p>\n    '+menu+'\n  </header>\n  <main>\n'+body+'  </main>\n  <footer>\n    <p>'+v.foot+'</p>\n  </footer>\n'+SCR+'</body>\n</html>\n';
+  const cards=v.cards.map(c=>'      <div class="card">\n        <h3>'+c[0]+'</h3>\n        <p>'+c[1]+'</p>\n      </div>\n').join('');
+  return{
+    'index.html':page(v.site,'    <section>\n      <h1>'+v.name+'</h1>\n      <p>'+v.tag+'</p>\n      <button id="greet">あいさつする</button>\n      <p id="msg"></p>\n    </section>\n    <section>\n      <h2>できること</h2>\n      <ul>\n'+v.skills.map(x=>'        <li>'+x+'</li>\n').join('')+'      </ul>\n    </section>\n'),
+    'about.html':page('自己紹介','    <h2>自己紹介</h2>\n    <img src="images/photo.svg" alt="'+v.alt+'" width="300">\n    <p>'+v.about+'</p>\n'),
+    'likes.html':page('好きなもの','    <h2>好きなもの</h2>\n    <div class="cards">\n'+cards+'    </div>\n'),
+    'css/main.css':'/* ===== 色（ここを変えると、サイト全体の色が変わる） ===== */\n:root {\n  --main-color: '+v.main+';\n  --bg-color: '+v.bg+';\n  --text-color: #222222;\n}\n\n/* ===== 全体 ===== */\nbody {\n  margin: 0;\n  font-family: sans-serif;\n  color: var(--text-color);\n  background-color: var(--bg-color);\n  line-height: 1.8;\n}\n\nheader, main, footer {\n  max-width: 760px;\n  margin: 0 auto;\n  padding: 16px 20px;\n}\n\nheader {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  flex-wrap: wrap;\n  gap: 8px;\n}\n\n.site-name {\n  margin: 0;\n  font-weight: 700;\n  color: var(--main-color);\n}\n\n.menu {\n  display: flex;\n  gap: 16px;\n}\n\n.menu a {\n  color: var(--main-color);\n}\n\nh1 {\n  color: var(--main-color);\n}\n\nh2 {\n  border-bottom: 2px solid var(--main-color);\n  padding-bottom: 4px;\n}\n\n/* ===== 作品カード ===== */\n.cards {\n  display: flex;\n  gap: 16px;\n}\n\n.card {\n  flex: 1;\n  background-color: #ffffff;\n  border: 1px solid #d6dde8;\n  border-radius: 10px;\n  padding: 16px;\n}\n\nbutton {\n  font-size: 16px;\n  padding: 6px 16px;\n  color: #ffffff;\n  background-color: var(--main-color);\n  border: 0;\n  border-radius: 8px;\n  cursor: pointer;\n}\n\nimg {\n  max-width: 100%;\n  height: auto;\n}\n\nfooter {\n  color: #666666;\n  font-size: 14px;\n}\n\n/* ===== スマホ幅 ===== */\n@media (max-width: 600px) {\n  .cards {\n    flex-direction: column;\n  }\n}\n',
+    'js/main.js':'const btn = document.getElementById("greet");\nconst msg = document.getElementById("msg");\n\nif (btn) {\n  btn.addEventListener("click", () => {\n    msg.textContent = "'+v.greet+'";\n  });\n}\n',
+    'images/photo.svg':PHOTO
+  };
+}
+const TPL_VALUES={site:'【サイト名】',name:'【あなたの名前】',tag:'【ひとこと紹介】',skills:['【できること1】','【できること2】','【できること3】'],alt:'【画像の説明】',about:'【自己紹介を書きます】',cards:[['【好きなもの1】','【ひとこと】'],['【好きなもの2】','【ひとこと】'],['【好きなもの3】','【ひとこと】']],greet:'こんにちは！【あなたのひとこと】',foot:'&copy; 2026 【あなたの名前】',main:'#2a4a8a',bg:'#f6f8fb'};
+const SAMPLE_VALUES={site:'さくらの部屋',name:'さくら',tag:'山歩きと写真が好きな大学1年生です。',skills:['HTMLとCSSを書く','JavaScriptで動かす','写真を撮る'],alt:'山と太陽の風景',about:'山歩きと写真が好きです。休みの日は近くの山を歩いています。',cards:[['好きな本','最近読んで面白かった小説です。'],['好きな映画','何度も見返している作品です。'],['趣味：山歩き','休みの日は近くの山を歩きます。'],['好きな食べ物','カレーが好きです。']],greet:'こんにちは、さくらです！',foot:'&copy; 2026 さくら',main:'#1f7a6d',bg:'#fff6e8'};
+const HTMLS=c=>c.paths.filter(p=>/\.html$/.test(p));
+LESSONS.push({
+  id:'final', req:1, short:'マイサイト制作', title:'仕上げ：テンプレートで自分のホームページを作る',
+  open:'index.html', page:'index.html', w:800,
+  files:SITE(TPL_VALUES),
+  body:`
+<p>最後は、配られたテンプレートをもとに<strong>自分のホームページ</strong>を作ります。3ページ（トップ・自己紹介・好きなもの）が最初から動く状態になっています。内容も見た目も、自由に作り変えてください。</p>
+<h3>進め方</h3>
+<ol>
+<li>まず全体を見る。Chrome で3ページを開き、メニューで行き来する</li>
+<li>${k('【 】')} と書かれた仮の文字を、自分の言葉に書き換える</li>
+<li>${k('css/main.css')} の一番上の色を変えて、雰囲気を決める</li>
+<li>好きなものカードや新しいページを足して、自分のサイトにしていく</li>
+</ol>
+<h3>CSSの変数</h3>
+<p>${k('main.css')} の先頭に、色をまとめて決めている場所があります。</p>
+${ex(':root {\n  --main-color: #2a4a8a;\n}\n\nh1 {\n  color: var(--main-color);\n}')}
+<p>${k('--名前')} で値に名前を付け、${k('var(--名前)')} で使います。ここを1か所変えるだけで、使っている全部の色が変わります。</p>
+<p class="note">AIに手伝ってもらう場合も、このチェックリストが「頼む内容」と「確かめる基準」になります。出てきたコードがルールを守っているか、自分の目で確認しましょう。</p>`,
+  tasks:[
+    {t:`トップページの ${k('【あなたの名前】')} を、自分の名前に書き換える`,c:'<!\x2d- サイトの題名。〇〇を自分の名前に書き換える -->\n<h1>〇〇のホームページ</h1>',f:c=>{const h=c.q('h1');return !!h&&c.txt(h)!==''&&c.txt(h).indexOf('【')<0}},
+    {t:`${k('【 】')} の仮の文字を、3つのHTMLと ${k('js/main.js')} からすべてなくす（自分の言葉に書き換える）`,n:'エディタでは、残っている【 】が赤く光ります。ファイル一覧では、まだ【 】が残っているファイルに ● が付きます。● が全部消えれば完了です。【 】ごと消して、自分の言葉を書きます。', f:c=>HTMLS(c).concat(['js/main.js']).every(p=>(c.files[p]||'').indexOf('【')<0)},
+    {t:`サイトの色を変える（${k('--main-color')} の色を書き換える）`,n:'①左のファイル一覧で {{css/main.css}} を開く　②一番上の方にある {{:root { ... }}} の中の {{--main-color}} の行を探す　③{{#2a4a8a}} の部分だけを、好きな色に書き換える。ここを1か所変えると、見出し・ボタン・線など、この色を使っている場所が全部変わります。',c:'/* css/main.css の一番上の方 */\n:root {\n  --main-color: #c0392b;  /* ←この色の部分だけ変える */\n}',f:c=>c.cs(c.q('h1'),'color')!=='rgb(42, 74, 138)'},
+    {t:`${k('likes.html')} の「好きなもの」カードを、4枚以上にする（好きな本・映画・趣味・食べ物など、何でもOK）`, page:'likes.html', f:c=>c.qa('.card').length>=4},
+    {t:`新しいページ（${k('contact.html')}）を作り、${k('index.html')} のメニューにリンクを足す`,n:'①ファイル一覧の「+ファイル」で {{contact.html}} を作る　②下の中身をコピーして、そのまま貼り付ける（住所・メールはダミーです。自分用に書き換えてもOK）　③{{index.html}} のメニュー（{{<nav>}} の中）に {{<a href="contact.html">連絡先</a>}} を1行足す。about.html と likes.html のメニューにも足すと、全ページから行き来できます。',c:'<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>連絡先</title>\n  <link rel="stylesheet" href="css/main.css">\n</head>\n<body>\n  <header>\n    <p class="site-name">あなたのサイト名</p>\n    <nav class="menu">\n      <a href="index.html">トップ</a>\n      <a href="about.html">自己紹介</a>\n      <a href="likes.html">好きなもの</a>\n      <a href="contact.html">連絡先</a>\n    </nav>\n  </header>\n  <main>\n    <h2>連絡先</h2>\n    <p>お仕事のご相談や感想は、こちらへどうぞ。（これはダミーの情報です）</p>\n    <address>\n      〒000-0000 東京都ダミー区ダミー町1-2-3<br>\n      メール：sample@example.com<br>\n      電話：000-0000-0000\n    </address>\n  </main>\n  <footer>\n    <p>&copy; 2026 あなたの名前</p>\n  </footer>\n  <script src="js/main.js"><\/script>\n</body>\n</html>\n',f:c=>{const o=HTMLS(c).filter(p=>['index.html','about.html','likes.html'].indexOf(p)<0);return o.length>=1&&o.every(p=>(c.files['index.html']||'').indexOf('href="'+p+'"')>=0)}},
+    {t:'新しく作ったページ・画像も含めて、すべてのファイル名・フォルダ名が命名ルールを守っている', f:c=>Object.keys(c.files).length>=7&&Object.keys(c.files).every(p=>!pathProblems(p))&&c.dirs.every(d=>!dirProblem(d))}
+  ],
+  hint:`${k('likes.html')} の ${k('<div class="card">')} のかたまりを、コピーして貼り付けると1枚増えます。新しいページは ${k('about.html')} をコピーして名前を変え、中身を書き換えます。メニューは3つのページすべてに同じものがあるので、増やしたらそれぞれに足します。`,
+  sol:{files:Object.assign(SITE(SAMPLE_VALUES),{
+    'contact.html':'<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>連絡先</title>\n  <link rel="stylesheet" href="css/main.css">\n</head>\n<body>\n  <header>\n    <p class="site-name">あなたのサイト名</p>\n    <nav class="menu">\n      <a href="index.html">トップ</a>\n      <a href="about.html">自己紹介</a>\n      <a href="likes.html">好きなもの</a>\n      <a href="contact.html">連絡先</a>\n    </nav>\n  </header>\n  <main>\n    <h2>連絡先</h2>\n    <p>お仕事のご相談や感想は、こちらへどうぞ。（これはダミーの情報です）</p>\n    <address>\n      〒000-0000 東京都ダミー区ダミー町1-2-3<br>\n      メール：sample@example.com<br>\n      電話：000-0000-0000\n    </address>\n  </main>\n  <footer>\n    <p>&copy; 2026 あなたの名前</p>\n  </footer>\n  <script src="js/main.js"><\/script>\n</body>\n</html>\n'
+  })}
+});
+// 答えの見本：メニューに contact.html を追加
+LESSONS[LESSONS.length-1].sol.files['index.html']=LESSONS[LESSONS.length-1].sol.files['index.html'].replace('<a href="likes.html">好きなもの</a>','<a href="likes.html">好きなもの</a>\n      <a href="contact.html">連絡先</a>');
+
+/* ===== 状態 ===== */
+const KEY='webkiso-v2';
+let store={};
+try{store=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){store={}}
+let saveT=0;
+function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(store,(k,v)=>typeof v==='string'&&/^data:image\//.test(v)?undefined:v))}catch(e){}},300)}
+const $=id=>document.getElementById(id);
+let cur=Math.min(Math.max(+store._cur||0,0),LESSONS.length-1);
+let fs={},dirs=[],curFile=null,sel=null,mode=null,page='index.html',delArm=0;
+
+function loadState(){
+  const L=LESSONS[cur];
+  let s=store[L.id];
+  if(!s||!s.files){s=store[L.id]=Object.assign(s||{},{files:Object.assign({},L.files),dirs:(L.dirs||[]).slice()})}
+  fs=s.files;dirs=s.dirs||(s.dirs=[]);
+  if(L.id==='final'&&!s.mig2){
+    s.mig2=1;
+    if(fs['works.html']!=null&&fs['likes.html']==null){
+      fs['likes.html']=fs['works.html'];delete fs['works.html'];
+      Object.keys(fs).forEach(p=>{if(/\.html$/.test(p))fs[p]=fs[p].replace(/works\.html/g,'likes.html').replace(/>作品</g,'>好きなもの<')});
+    }
+    save();
+  }
+  if(L.add&&!s.added){Object.keys(L.add).forEach(p=>{if(fs[p]==null)fs[p]=L.add[p]});s.added=1;save()}
+  (L.dirs||[]).forEach(d=>{if(dirs.indexOf(d)<0&&!isDir(d))dirs.push(d)});
+  curFile=fs[L.open]!=null?L.open:Object.keys(fs)[0]||null;
+  sel=curFile?{path:curFile,dir:false}:null;
+  page=L.page;mode=null;
+}
+function persist(){const s=store[LESSONS[cur].id];s.files=fs;s.dirs=dirs;save()}
+
+/* ===== フォルダ計算 ===== */
+function ancestors(p){const a=[],x=p.split('/');for(let i=1;i<x.length;i++)a.push(x.slice(0,i).join('/'));return a}
+function allDirs(){const s=new Set();Object.keys(fs).forEach(p=>ancestors(p).forEach(d=>s.add(d)));dirs.forEach(d=>{s.add(d);ancestors(d).forEach(x=>s.add(x))});return s}
+function isDir(p){return allDirs().has(p)}
+function dirOf(p){const i=p.lastIndexOf('/');return i<0?'':p.slice(0,i)}
+function baseOf(p){return p.slice(p.lastIndexOf('/')+1)}
+function joinP(a,b){return a?a+'/'+b:b}
+
+/* ===== ツリー ===== */
+const ICON_DIR='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 4h4.2l1.5 1.6h7.3v7.9h-13z"/></svg>';
+const ICON_FILE='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 1.5h6l3 3v10h-9z"/><path d="M9.5 1.5v3h3"/></svg>';
+const qa=s=>esc(s).replace(/"/g,'&quot;');
+function treeHtml(node,prefix,depth){
+  let h='<ul role="group">';
+  Object.keys(node.d).sort().forEach(n=>{
+    const p=joinP(prefix,n),bad=nameProblem(n,true);
+    h+='<li><button type="button" draggable="true" class="node'+(bad?' bad':'')+'" data-p="'+qa(p)+'" data-d="1" style="padding-left:'+(8+depth*14)+'px" aria-current="'+(!!sel&&sel.path===p)+'"'+(bad?' title="'+qa(bad)+'"':'')+'>'+ICON_DIR+'<span class="nm">'+esc(n)+'/</span></button>'+treeHtml(node.d[n],p,depth+1)+'</li>';
+  });
+  node.f.slice().sort().forEach(n=>{
+    const p=joinP(prefix,n),bad=nameProblem(n,false);
+    h+='<li><button type="button" draggable="true" class="node'+(bad?' bad':'')+'" data-p="'+qa(p)+'" style="padding-left:'+(8+depth*14)+'px" aria-current="'+(!!sel&&sel.path===p)+'"'+(bad?' title="'+qa(bad)+'"':'')+'>'+ICON_FILE+'<span class="nm">'+esc(n)+'</span>'+(/【/.test(fs[p]||'')?'<span class="todo" title="【 】が残っています">●</span>':'')+(lintFile(p,fs[p],null).length?'<span class="warn" title="まちがいがあるかもしれません。ファイルを開いて確認します">⚠</span>':'')+'</button></li>';
+  });
+  return h+'</ul>';
+}
+function renderTree(){
+  const root={d:{},f:[]};
+  const at=p=>{let n=root;if(p)p.split('/').forEach(s=>{n=n.d[s]||(n.d[s]={d:{},f:[]})});return n};
+  allDirs().forEach(d=>at(d));
+  Object.keys(fs).forEach(p=>at(dirOf(p)).f.push(baseOf(p)));
+  $('tree').innerHTML=treeHtml(root,'',0);
+  $('tRename').disabled=!sel;$('tDelete').disabled=!sel;
+  $('tDelete').textContent=delArm?'もう一度':'削除';
+}
+$('tree').addEventListener('click',e=>{
+  const b=e.target.closest('.node');if(!b)return;
+  const p=b.dataset.p,d=!!b.dataset.d;
+  sel={path:p,dir:d};
+  if(!d){curFile=p;loadEditor();if(/\.html$/.test(p)&&p!==page){page=p;renderPreview()}}
+  delArm=0;renderTree();
+});
+
+/* ===== 新規・名前変更・削除 ===== */
+function openNameRow(m){
+  mode=m;const row=$('nameRow');row.classList.add('on');$('nameErr').hidden=true;
+  const base=sel?(sel.dir?sel.path:dirOf(sel.path)):'';
+  if(m==='newfile'){$('nameLbl').textContent='新しいファイル名'+(base?'（'+base+'/ の中）':'（一番上）');$('nameIn').value='';$('nameIn').placeholder='例: about.html'}
+  if(m==='newdir'){$('nameLbl').textContent='新しいフォルダ名'+(base?'（'+base+'/ の中）':'（一番上）');$('nameIn').value='';$('nameIn').placeholder='例: images'}
+  if(m==='rename'){$('nameLbl').textContent='新しい名前（/ を入れるとフォルダへ移動）';$('nameIn').value=sel.path;$('nameIn').placeholder=''}
+  $('nameIn').focus();if(m==='rename')$('nameIn').select();
+}
+function closeNameRow(){mode=null;$('nameRow').classList.remove('on')}
+function dirProblem(path){const x=path.split('/');for(const s of x){const p=nameProblem(s,true);if(p)return p}return''}
+function validate(m,v){
+  if(!v)return'名前を入れてください。';
+  if(m==='newfile'){
+    const full=joinP(sel?(sel.dir?sel.path:dirOf(sel.path)):'',v);
+    const pr=pathProblems(v);if(pr)return pr;
+    if(fs[full]!=null||isDir(full))return'同じ名前がすでにあります。';
+    return'';
+  }
+  if(m==='newdir'){
+    const full=joinP(sel?(sel.dir?sel.path:dirOf(sel.path)):'',v);
+    const pr=dirProblem(v);if(pr)return pr;
+    if(fs[full]!=null||isDir(full))return'同じ名前がすでにあります。';
+    return'';
+  }
+  const old=sel.path;
+  if(v===old)return'';
+  const pr=sel.dir?dirProblem(v):pathProblems(v);if(pr)return pr;
+  if(fs[v]!=null||isDir(v))return'同じ名前がすでにあります。';
+  if(sel.dir&&v.indexOf(old+'/')===0)return'フォルダを自分の中には移せません。';
+  return'';
+}
+$('nameIn').addEventListener('input',()=>{const e=validate(mode,$('nameIn').value.trim());$('nameErr').hidden=!e;$('nameErr').textContent=e});
+$('nameCancel').onclick=closeNameRow;
+$('nameRow').addEventListener('submit',ev=>{
+  ev.preventDefault();
+  const v=$('nameIn').value.trim(),err=validate(mode,v);
+  if(err){$('nameErr').hidden=false;$('nameErr').textContent=err;return}
+  const base=sel?(sel.dir?sel.path:dirOf(sel.path)):'';
+  if(mode==='newfile'){const full=joinP(base,v);fs[full]='';curFile=full;sel={path:full,dir:false}}
+  else if(mode==='newdir'){const full=joinP(base,v);dirs.push(full);sel={path:full,dir:true}}
+  else if(v!==sel.path){
+    const old=sel.path;
+    if(!sel.dir){fs[v]=fs[old];delete fs[old];if(curFile===old)curFile=v;sel={path:v,dir:false}}
+    else{
+      Object.keys(fs).filter(p=>p.indexOf(old+'/')===0).forEach(p=>{const n=v+p.slice(old.length);fs[n]=fs[p];delete fs[p];if(curFile===p)curFile=n});
+      for(let i=0;i<dirs.length;i++){if(dirs[i]===old||dirs[i].indexOf(old+'/')===0)dirs[i]=v+dirs[i].slice(old.length)}
+      sel={path:v,dir:true};
+    }
+    if(!fs[page])page=LESSONS[cur].page;
+  }
+  closeNameRow();afterFsChange();
+});
+$('tNewFile').onclick=()=>openNameRow('newfile');
+$('tNewDir').onclick=()=>openNameRow('newdir');
+$('tRename').onclick=()=>{if(sel)openNameRow('rename')};
+$('tDelete').onclick=()=>{
+  if(!sel)return;
+  if(!delArm){delArm=1;renderTree();setTimeout(()=>{delArm=0;renderTree()},3000);return}
+  delArm=0;const p=sel.path;
+  if(sel.dir){Object.keys(fs).forEach(x=>{if(x.indexOf(p+'/')===0)delete fs[x]});for(let i=dirs.length-1;i>=0;i--){if(dirs[i]===p||dirs[i].indexOf(p+'/')===0)dirs.splice(i,1)}}
+  else delete fs[p];
+  if(curFile&&fs[curFile]==null)curFile=Object.keys(fs)[0]||null;
+  sel=curFile?{path:curFile,dir:false}:null;
+  closeNameRow();afterFsChange();
+};
+let dragSrc=null;
+const treeEl=$('tree');
+const clearDrop=()=>{treeEl.querySelectorAll('.dropok').forEach(n=>n.classList.remove('dropok'));treeEl.classList.remove('droproot')};
+treeEl.addEventListener('dragstart',e=>{
+  const b=e.target.closest&&e.target.closest('.node');if(!b)return;
+  dragSrc={path:b.dataset.p,dir:!!b.dataset.d};
+  e.dataTransfer.setData('text/x-webkiso-move',b.dataset.p);e.dataTransfer.effectAllowed='move';
+});
+treeEl.addEventListener('dragend',()=>{dragSrc=null;clearDrop()});
+treeEl.addEventListener('dragover',e=>{
+  if(!dragSrc)return;
+  e.preventDefault();e.dataTransfer.dropEffect='move';
+  clearDrop();
+  const n=e.target.closest('.node');
+  if(n&&n.dataset.d)n.classList.add('dropok');else treeEl.classList.add('droproot');
+});
+treeEl.addEventListener('drop',e=>{
+  if(!dragSrc)return;
+  e.preventDefault();e.stopPropagation();
+  const n=e.target.closest('.node');
+  const dest=n?(n.dataset.d?n.dataset.p:dirOf(n.dataset.p)):'';
+  const src=dragSrc;dragSrc=null;clearDrop();
+  moveItem(src.path,src.dir,dest);
+});
+function moveItem(old,isD,destDir){
+  const v=joinP(destDir,baseOf(old));
+  if(v===old)return;
+  if(isD&&(destDir===old||destDir.indexOf(old+'/')===0)){showToast('フォルダを自分の中には移せません。');return}
+  if(fs[v]!=null||isDir(v)){showToast('移動先に、同じ名前がすでにあります。');return}
+  if(!isD){fs[v]=fs[old];delete fs[old];if(curFile===old)curFile=v}
+  else{
+    Object.keys(fs).filter(p=>p.indexOf(old+'/')===0).forEach(p=>{const n=v+p.slice(old.length);fs[n]=fs[p];delete fs[p];if(curFile===p)curFile=n});
+    for(let i=0;i<dirs.length;i++){if(dirs[i]===old||dirs[i].indexOf(old+'/')===0)dirs[i]=v+dirs[i].slice(old.length)}
+  }
+  sel={path:v,dir:isD};
+  if(fs[page]==null)page=LESSONS[cur].page;
+  showToast(old+' を '+(destDir?destDir+'/':'一番上')+' に移しました。');
+  afterFsChange();
+}
+function replaceFiles(files){
+  Object.keys(fs).forEach(p=>delete fs[p]);Object.assign(fs,files);dirs.length=0;
+  const L=LESSONS[cur];(L.dirs||[]).forEach(d=>dirs.push(d));
+  curFile=fs[L.open]!=null?L.open:Object.keys(fs)[0]||null;
+  sel=curFile?{path:curFile,dir:false}:null;page=L.page;
+  closeNameRow();afterFsChange();
+}
+function afterFsChange(){
+  persist();renderTree();loadEditor();
+  if(fs[page]==null&&fs[LESSONS[cur].page]!=null)page=LESSONS[cur].page;
+  renderPreview();scheduleChecks(400);
+}
+
+/* ===== エディタ ===== */
+const ta=$('code');
+function loadEditor(){
+  const ok=curFile&&fs[curFile]!=null,bin=ok&&/^data:image\//.test(fs[curFile]);
+  $('hlWrap').style.display=bin?'none':'';
+  const ip=$('imgPrev');ip.style.display=bin?'flex':'none';
+  if(bin){ip.innerHTML='<img alt="">';ip.firstChild.src=fs[curFile]}
+  if(ok&&!bin){ta.disabled=false;ta.value=fs[curFile]}
+  else{ta.disabled=true;ta.value=''}
+  updateHl();
+  $('edTitle').textContent=ok?'my-site/'+curFile+(bin?'（画像）':''):'ファイルを選んでください';
+}
+const hlEl=$('hl');
+const esc2=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function segments(t,path){
+  let re,html=false;
+  if(/\.html?$/i.test(path)){re=/(<!-{2}[\s\S]*?(?:-{2}>|$))|(<\/?[a-zA-Z!][^>]*>?)/g;html=true}
+  else if(/\.css$/i.test(path))re=/(\/\*[\s\S]*?(?:\*\/|$))/g;
+  else if(/\.js$/i.test(path))re=/(\/\*[\s\S]*?(?:\*\/|$))|(\/\/[^\n]*)/g;
+  else return [[t,'']];
+  const segs=[];let last=0,m;
+  while((m=re.exec(t))){
+    if(m[0]==='')break;
+    if(m.index>last)segs.push([t.slice(last,m.index),'']);
+    segs.push([m[0],html&&m[2]!==undefined?'ht':'hc']);
+    last=m.index+m[0].length;
+  }
+  if(last<t.length)segs.push([t.slice(last),'']);
+  return segs;
+}
+const ph=t=>t.replace(/【[^】\n]*】/g,'<span class="ph">$&</span>');
+const spanOf=(x,c)=>x?(c?'<span class="'+c+'">'+ph(esc2(x))+'</span>':ph(esc2(x))):'';
+function highlight(t,path,g){
+  let out='',off=0,done=false;
+  for(const sg of splitErr(segments(t,path),curErrs)){
+    const x=sg[0],c=sg[1];
+    if(g&&!done&&g.pos>=off&&g.pos<=off+x.length){
+      const k=g.pos-off;
+      out+=spanOf(x.slice(0,k),c)+'<span class="gh">'+esc2(g.text)+'</span>'+spanOf(x.slice(k),c);done=true;
+    }else out+=spanOf(x,c);
+    off+=x.length;
+  }
+  if(g&&!done)out+='<span class="gh">'+esc2(g.text)+'</span>';
+  return out;
+}
+const VOID=['br','img','meta','link','input','hr'];
+const TAGS=['a','article','body','br','button','div','footer','form','h1','h2','h3','h4','h5','h6','head','header','hr','html','img','input','label','li','link','main','meta','nav','ol','option','p','script','section','select','span','style','table','td','textarea','th','title','tr','ul'];
+let ghost=null,ghostOff=false;
+function openStack(t){
+  const st=[],re=/<!-{2}[\s\S]*?-{2}>|<(\/?)([a-zA-Z][a-zA-Z0-9]*)\b[^>]*?(\/?)>/g;let m;
+  while((m=re.exec(t))){
+    if(m[0].charAt(1)==='!')continue;
+    const n=m[2].toLowerCase();
+    if(VOID.indexOf(n)>=0||m[3])continue;
+    if(m[1]){const i=st.lastIndexOf(n);if(i>=0)st.length=i}else st.push(n);
+  }
+  return st;
+}
+function computeGhost(){
+  if(!curFile||!/\.html?$/i.test(curFile)||ta.selectionStart!==ta.selectionEnd||ghostOff||ta.disabled)return null;
+  const pos=ta.selectionStart,v=ta.value,ls=v.lastIndexOf('\n',pos-1)+1,le=v.indexOf('\n',pos);
+  if(v.slice(pos,le<0?v.length:le).trim()!=='')return null;
+  const line=v.slice(ls,pos);let m;
+  if(/<\/$/.test(line)){const st=openStack(v.slice(0,pos-2));if(st.length)return{pos:pos,text:st[st.length-1]+'>',kind:'close'}}
+  else if((m=/<([a-zA-Z][a-zA-Z0-9]*)$/.exec(line))){
+    const p=m[1].toLowerCase(),c=TAGS.find(x=>x.indexOf(p)===0);
+    if(c)return{pos:pos,text:c.slice(p.length)+'>',tag:c,kind:'open'};
+  }
+  return null;
+}
+/* ===== まちがい探し（簡易チェック） ===== */
+const L_KNOWN=new Set('a abbr address article aside audio b blockquote body br button canvas caption cite code col colgroup dd details div dl dt em fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hr html i iframe img input label legend li link main mark meta nav ol optgroup option p picture pre q s script section select small source span strong style sub summary sup svg table tbody td template textarea tfoot th thead time title tr u ul video path rect circle g line polygon text defs ellipse polyline use'.split(' '));
+const L_OPT=new Set(['li','p','td','th','tr','dt','dd','option','thead','tbody','tfoot','colgroup']);
+const L_PROPS='color background background-color background-image background-size background-position background-repeat border border-top border-right border-bottom border-left border-color border-style border-width border-radius border-collapse box-shadow box-sizing display position top right bottom left z-index float clear width height min-width max-width min-height max-height margin margin-top margin-right margin-bottom margin-left padding padding-top padding-right padding-bottom padding-left font font-family font-size font-weight font-style line-height letter-spacing text-align text-decoration text-transform text-indent white-space word-break overflow overflow-x overflow-y opacity cursor flex flex-direction flex-wrap flex-grow flex-shrink flex-basis justify-content align-items align-content align-self gap row-gap column-gap grid grid-template-columns grid-template-rows grid-column grid-row order list-style list-style-type object-fit transition transform animation visibility outline content vertical-align'.split(' ');
+function lev(a,b){const d=[];for(let i=0;i<=a.length;i++){d[i]=[i]}for(let j=0;j<=b.length;j++)d[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[a.length][b.length]}
+function nearest(w,list,max){let best=null,bd=99;list.forEach(x=>{const d=lev(w,x);if(d<bd){bd=d;best=x}});return bd<=max?best:null}
+function lintHtml(t,caret){
+  const errs=[],stack=[];
+  const re=/<!-{2}[\s\S]*?(?:-{2}>|$)|<(\/?)([a-zA-Z][a-zA-Z0-9]*)([^<>]*)(>?)/g;let m;
+  const add=(a,b,msg)=>errs.push({a:a,b:b,msg:msg});
+  while((m=re.exec(t))){
+    if(m[0].charAt(1)==='!')continue;
+    const a=m.index,b=a+m[0].length,name=m[2].toLowerCase(),cl=m[1]==='/',near=caret!=null&&caret>=a&&caret<=b;
+    if(!near){
+      if(m[4]==='')add(a,b,'タグが「>」で閉じられていません');
+      else if((m[3].match(/"/g)||[]).length%2)add(a,b,'引用符 " が閉じていません（" は2つで1組）');
+      else if(/[“”‘’]/.test(m[3]))add(a,b,'タグの中は、半角の " を使います（“ ” は全角です）');
+    }
+    if(cl){
+      let i=-1;for(let k=stack.length-1;k>=0;k--)if(stack[k].n===name){i=k;break}
+      if(i<0){
+        const top=stack[stack.length-1],g=nearest(name,stack.map(x=>x.n).reverse(),1);
+        add(a,b,'</'+name+'> に対応する <'+name+'> がありません'+(g?'（</'+g+'> のまちがい？）':''));
+        if(g&&top&&g===top.n)stack.pop();
+      }else{
+        for(let k=stack.length-1;k>i;k--)if(!L_OPT.has(stack[k].n))add(stack[k].a,stack[k].b,'<'+stack[k].n+'> の閉じタグ </'+stack[k].n+'> がありません');
+        stack.length=i;
+      }
+      continue;
+    }
+    if(!L_KNOWN.has(name)){const g=nearest(name,[...L_KNOWN],1);add(a,b,'<'+name+'> というタグは知られていません'+(g?'（<'+g+'> のまちがい？）':''))}
+    let top=stack[stack.length-1];
+    if(top&&(name==='li'&&top.n==='li'||name==='p'&&top.n==='p')){stack.pop();top=stack[stack.length-1]}
+    if(top&&(top.n==='ul'||top.n==='ol')&&name!=='li'&&name!=='script'&&name!=='template')add(a,b,top.n+' の直下には <li> だけ置けます（<'+name+'> は <'+top.n+'> の外に出します）');
+    if(VOID.indexOf(name)>=0||/\/\s*$/.test(m[3]))continue;
+    if(name==='script'||name==='style'){
+      if(/\bsrc\s*=/.test(m[3])&&name==='script'){const e2=t.toLowerCase().indexOf('<\/script',b);const c2=e2<0?-1:t.indexOf('>',e2);if(c2>=0)re.lastIndex=c2+1;else add(a,b,'<script> の閉じタグ <\/script> がありません');continue}
+      const e=t.toLowerCase().indexOf('</'+name,b),c=e<0?-1:t.indexOf('>',e);
+      if(c<0){add(a,b,'<'+name+'> の閉じタグ </'+name+'> がありません');re.lastIndex=t.length}else re.lastIndex=c+1;
+      continue}
+    stack.push({n:name,a:a,b:b});
+  }
+  stack.forEach(x=>{if(!L_OPT.has(x.n))add(x.a,x.b,'<'+x.n+'> の閉じタグ </'+x.n+'> がありません')});
+  return errs;
+}
+function lintCss(t,caret){
+  const errs=[],add=(a,b,msg)=>errs.push({a:a,b:b,msg:msg});
+  const x=t.replace(/\/\*[\s\S]*?(\*\/|$)/g,q=>q.replace(/[^\n]/g,' '));
+  const open=[];
+  for(let i=0;i<x.length;i++){
+    const ch=x.charAt(i);
+    if(ch==='{')open.push(i);
+    else if(ch==='}'){if(open.length)open.pop();else add(i,i+1,'} に対応する { がありません')}
+    else if(/[“”‘’]/.test(ch))add(i,i+1,'半角の " か \' を使います（全角の引用符は使えません）');
+  }
+  open.forEach(i=>add(i,i+1,'{ に対応する } がありません（閉じ忘れ）'));
+  const lines=x.split('\n');let off=0;
+  for(let n=0;n<lines.length;n++){
+    const ln=lines[n],ls=off,le=off+ln.length;off=le+1;
+    const m=/^(\s*)([a-zA-Z-]+)(\s*:\s*)([^;{}]*?)(\s*)(;?)\s*$/.exec(ln);
+    if(!m)continue;
+    const pa=ls+m[1].length,pb=pa+m[2].length;
+    if(m[2].indexOf('--')!==0&&L_PROPS.indexOf(m[2])<0){const g=nearest(m[2],L_PROPS,2);if(g)add(pa,pb,'プロパティ名「'+m[2]+'」は知られていません（'+g+' のまちがい？）')}
+    if(m[6]===''&&!(caret!=null&&caret>=ls&&caret<=le)&&m[4]!==''){
+      let k=n+1;while(k<lines.length&&lines[k].trim()==='')k++;
+      if(k<lines.length&&lines[k].trim().charAt(0)!=='}'&&/^[a-zA-Z-]+\s*:/.test(lines[k].trim())){const te=ls+ln.replace(/\s+$/,'').length;add(te-1,te,'この行の最後に ; がありません')}
+    }
+  }
+  return errs;
+}
+function lintJs(t,caret){
+  const errs=[],add=(a,b,msg)=>errs.push({a:a,b:b,msg:msg});
+  const st=[],pairs={')':'(',']':'[','}':'{'};let i=0,n=t.length;
+  while(i<n){
+    const c=t.charAt(i),d=t.charAt(i+1);
+    if(c==='/'&&d==='/'){while(i<n&&t.charAt(i)!=='\n')i++;continue}
+    if(c==='/'&&d==='*'){const e=t.indexOf('*/',i+2);i=e<0?n:e+2;continue}
+    if(c==='"'||c==="'"||c==='`'){
+      let j=i+1;while(j<n&&t.charAt(j)!==c&&(c==='`'||t.charAt(j)!=='\n')){if(t.charAt(j)==='\\')j++;j++}
+      if(t.charAt(j)!==c&&c!=='`')add(i,Math.min(j,n),'引用符 '+c+' が閉じていません（行の終わりまでに閉じます）');
+      i=j+1;continue}
+    if(/[“”‘’]/.test(c)){add(i,i+1,'半角の " か \' を使います（全角の引用符は使えません）');i++;continue}
+    if(c==='('||c==='['||c==='{')st.push({c:c,i:i});
+    else if(c===')'||c===']'||c==='}'){
+      const top=st[st.length-1];
+      if(top&&top.c===pairs[c])st.pop();
+      else add(i,i+1,c+' に対応する '+pairs[c]+' がありません'+(top?'（先に '+({'(':')','[':']','{':'}'})[top.c]+' を閉じます）':''));
+    }
+    i++;
+  }
+  st.forEach(o=>add(o.i,o.i+1,o.c+' に対応する '+({'(':')','[':']','{':'}'})[o.c]+' がありません（閉じ忘れ）'));
+  return errs;
+}
+function lintFile(path,text,caret){
+  if(typeof text!=='string'||/^data:/.test(text))return [];
+  try{
+    if(/\.html?$/i.test(path))return lintHtml(text,caret);
+    if(/\.css$/i.test(path))return lintCss(text,caret);
+    if(/\.js$/i.test(path))return lintJs(text,caret);
+  }catch(e){}
+  return [];
+}
+function lineOf(t,pos){let n=1;for(let i=0;i<pos&&i<t.length;i++)if(t.charCodeAt(i)===10)n++;return n}
+function splitErr(segs,errs){
+  if(!errs.length)return segs;
+  const cuts=new Set();errs.forEach(e=>{cuts.add(e.a);cuts.add(e.b)});
+  const out=[];let off=0;
+  for(const sg of segs){
+    const x=sg[0];let last=0;
+    [...cuts].filter(c=>c>off&&c<off+x.length).sort((a,b)=>a-b).concat([off+x.length]).forEach(c=>{
+      const p=x.slice(last,c-off);if(p){const mid=off+last,bad=errs.some(e=>mid>=e.a&&mid<e.b);out.push([p,sg[1]+(bad?' er':'')])}
+      last=c-off;
+    });
+    off+=x.length;
+  }
+  return out;
+}
+let curErrs=[];
+function renderLint(){
+  const box=$('lint');if(!box)return;
+  if(!curErrs.length){box.hidden=true;box.innerHTML='';return}
+  const t=ta.value,show=curErrs.slice().sort((a,b)=>a.a-b.a).slice(0,3);
+  box.hidden=false;
+  box.innerHTML=show.map(e=>'<button type="button" class="le" data-a="'+e.a+'" data-b="'+e.b+'">⚠ '+lineOf(t,e.a)+'行目：'+esc(e.msg)+'</button>').join('')+(curErrs.length>3?'<span class="lm">ほか '+(curErrs.length-3)+' 件</span>':'');
+}
+function updateHl(){
+  const ok=curFile&&fs[curFile]!=null&&!/^data:/.test(fs[curFile]);
+  ghost=ok?computeGhost():null;
+  curErrs=ok?lintFile(curFile,ta.value,ta.selectionStart):[];
+  hlEl.innerHTML=ok?highlight(ta.value,curFile,ghost?{pos:ghost.pos,text:ghost.text}:null)+'\n':'';
+  renderLint();
+  hlEl.scrollTop=ta.scrollTop;hlEl.scrollLeft=ta.scrollLeft;
+}
+function edit(a,b,text,sa,sb){
+  ta.focus();ta.setSelectionRange(a,b);
+  let ok=false;try{ok=document.execCommand('insertText',false,text)}catch(x){}
+  if(!ok){ta.setRangeText(text,a,b,'end');ta.dispatchEvent(new Event('input'))}
+  if(sa!=null)ta.setSelectionRange(sa,sb==null?sa:sb);
+  updateHl();
+}
+ta.addEventListener('scroll',()=>{hlEl.scrollTop=ta.scrollTop;hlEl.scrollLeft=ta.scrollLeft});
+let trap=true;
+ta.addEventListener('keydown',e=>{
+  if(e.isComposing)return;
+  if(e.key==='Escape'){trap=false;ghostOff=true;updateHl();return}
+  if(!trap||e.ctrlKey||e.metaKey||e.altKey)return;
+  const v=ta.value,s0=ta.selectionStart,e0=ta.selectionEnd;
+  if(e.key==='Tab'){
+    e.preventDefault();
+    if(!e.shiftKey&&ghost){
+      const g=ghost;let ins=g.text;const caret=g.pos+ins.length;
+      if(g.kind==='open'&&VOID.indexOf(g.tag)<0)ins+='<\/'+g.tag+'>';
+      edit(g.pos,g.pos,ins,caret);return;
+    }
+    if(e.shiftKey||v.slice(s0,e0).indexOf('\n')>=0){
+      const ls=v.lastIndexOf('\n',s0-1)+1,i=v.indexOf('\n',e0),le=i<0?v.length:i;
+      const out=v.slice(ls,le).split('\n').map(l=>e.shiftKey?l.replace(/^( {1,2}|\t)/,''):'  '+l).join('\n');
+      edit(ls,le,out,ls,ls+out.length);
+    }else edit(s0,e0,'  ');
+    return;
+  }
+  if(e.key==='Enter'&&!e.shiftKey){
+    const ls=v.lastIndexOf('\n',s0-1)+1,ind=/^[ \t]*/.exec(v.slice(ls,s0))[0],bf=v.charAt(s0-1);
+    e.preventDefault();
+    if((bf==='>'&&v.slice(e0,e0+2)==='<\/')||(bf==='{'&&v.charAt(e0)==='}')){
+      edit(s0,e0,'\n'+ind+'  \n'+ind,s0+1+ind.length+2);
+    }else edit(s0,e0,'\n'+ind+(bf==='{'?'  ':''));
+    return;
+  }
+  if(e.key==='>'&&curFile&&/\.html?$/i.test(curFile)&&s0===e0){
+    const m=/<([a-zA-Z][a-zA-Z0-9]*)(?:\s[^<>]*)?$/.exec(v.slice(0,s0));
+    if(m&&VOID.indexOf(m[1].toLowerCase())<0&&v.slice(s0).indexOf('<\/'+m[1])!==0){
+      e.preventDefault();edit(s0,s0,'><\/'+m[1]+'>',s0+1);
+    }
+  }
+});
+ta.addEventListener('keyup',()=>updateHl());
+$('lint').addEventListener('click',e=>{const b=e.target.closest('.le');if(!b)return;ta.focus();ta.setSelectionRange(+b.dataset.a,+b.dataset.b);const ln=lineOf(ta.value,+b.dataset.a);ta.scrollTop=Math.max(0,(ln-3)*ta.scrollHeight/Math.max(1,ta.value.split('\n').length))});
+ta.addEventListener('click',()=>updateHl());
+ta.addEventListener('blur',()=>{trap=true});
+let prevT=0;
+ta.addEventListener('input',()=>{
+  if(!curFile)return;
+  ghostOff=false;fs[curFile]=ta.value;persist();updateHl();
+  clearTimeout(prevT);prevT=setTimeout(renderPreview,300);clearTimeout(window._tT);window._tT=setTimeout(renderTree,400);
+  scheduleChecks(700);
+});
+
+/* ===== プレビュー組み立て（ファイルを相対パスでつなぐ） ===== */
+function resolve(base,rel){
+  if(!rel||/^([a-z][a-z0-9+.-]*:|#|\/\/)/i.test(rel))return null;
+  rel=rel.split('#')[0].split('?')[0];
+  const parts=rel.charAt(0)==='/'?[]:base.split('/').slice(0,-1);
+  rel.split('/').forEach(s=>{if(s==='..')parts.pop();else if(s!=='.'&&s!=='')parts.push(s)});
+  return parts.join('/');
+}
+const BRIDGE='<script>(function(){function s(o){try{parent.postMessage(o,"*")}catch(e){}}window.addEventListener("error",function(e){s({t:"c",k:"error",m:e.message})});["log","warn","error"].forEach(function(k){var o=console[k];console[k]=function(){s({t:"c",k:k,m:[].map.call(arguments,function(a){try{return typeof a==="object"?JSON.stringify(a):String(a)}catch(e){return String(a)}}).join(" ")});o.apply(console,arguments)}});document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href]");if(!a)return;var h=a.getAttribute("href");if(h.charAt(0)==="#")return;e.preventDefault();s({t:"nav",h:h})})})()<\/script>';
+const FX={
+  rainbow:'html,body{background:linear-gradient(115deg,#ff3b30,#ff9500,#ffcc00,#34c759,#0ea5e9,#5856d6,#af52de,#ff3b30)!important;background-size:300% 300%!important;animation:__rb 4s linear infinite!important}@keyframes __rb{0%{background-position:0% 50%}100%{background-position:300% 50%}}',
+  glitch:'body{outline:3px dashed #ff3b30!important;animation:__gl .35s steps(2) infinite!important}@keyframes __gl{0%{transform:translate(0,0)}25%{transform:translate(-3px,1px)}50%{transform:translate(3px,-1px)}75%{transform:translate(-1px,-3px)}100%{transform:translate(2px,2px)}}'
+};
+function build(path,bridge,fx){
+  const src=fs[path];
+  if(src==null){
+    return '<!DOCTYPE html><meta charset="utf-8"><body style="font-family:sans-serif;padding:24px;color:#333"><h2>'+esc(path)+' が見つかりません</h2><p>'+(path==='index.html'?'トップページは <b>index.html</b> という名前にします。ファイル名を確認しましょう。':'ファイル名とフォルダの場所（パス）を確認しましょう。')+'</p></body>';
+  }
+  let h=src;
+  h=h.replace(/<link\b[^>]*>/gi,tag=>{
+    if(!/rel\s*=\s*["']?stylesheet/i.test(tag))return tag;
+    const m=tag.match(/href\s*=\s*["']([^"']*)["']/i);if(!m)return tag;
+    const p=resolve(path,m[1]);
+    return p!=null&&fs[p]!=null?'<style>\n'+fs[p]+'\n</style>':tag;
+  });
+  h=h.replace(/<script\b([^>]*?)\bsrc\s*=\s*(["'])([^"']*)\2([^>]*)>\s*<\/script>/gi,(m,a,q,s)=>{
+    const p=resolve(path,s);
+    return p!=null&&fs[p]!=null?'<script>\n'+fs[p].replace(/<\/script/gi,'<\\/script')+'\n<\/script>':m;
+  });
+  h=h.replace(/(<img\b[^>]*?\bsrc\s*=\s*)(["'])([^"']*)\2/gi,(m,pre,q,s)=>{
+    const p=resolve(path,s);
+    if(p!=null&&fs[p]!=null&&/^data:image\//.test(fs[p]))return pre+q+fs[p]+q;
+    return p!=null&&fs[p]!=null&&/\.svg$/i.test(p)?pre+q+'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(fs[p]).replace(/'/g,'%27')+q:m;
+  });
+  if(bridge){
+    const ins=m=>m+BRIDGE;
+    if(/<head[^>]*>/i.test(h))h=h.replace(/<head[^>]*>/i,ins);
+    else if(/<html[^>]*>/i.test(h))h=h.replace(/<html[^>]*>/i,ins);
+    else if(/^\s*<!doctype[^>]*>/i.test(h))h=h.replace(/^\s*<!doctype[^>]*>/i,ins);
+    else h=BRIDGE+h;
+  }
+  if(fx&&fxActive.length)h+='<style>'+fxActive.map(i=>FX[i]).join('')+'@media (prefers-reduced-motion:reduce){html,body{animation:none!important}}</style>';
+  return h;
+}
+
+/* ===== ひみつの仕掛け ===== */
+function hasComment(t,p){
+  if(/\.html$/.test(p))return /<!-{2}\s*<\w[^>]*>[\s\S]*?-{2}>/.test(t);
+  if(/\.css$/.test(p))return /\/\*[^*]*[a-z-]+\s*:\s*[^;*]+;[^*]*\*\//i.test(t);
+  if(/\.js$/.test(p))return /^\s*\/\/\s*[\w.$]+.*[;)]\s*$/m.test(t);
+  return false;
+}
+function hasUnclosed(t){
+  return ['div','ul','ol','li','header','main','footer','h1','h2','a','button','nav','section'].some(n=>{
+    const o=(t.match(new RegExp('<'+n+'(\\s[^>]*)?>','gi'))||[]).length,c=(t.match(new RegExp('</'+n+'\\s*>','gi'))||[]).length;
+    return o>c;
+  });
+}
+const SECRETS=[
+  {id:'rainbow',test:()=>Object.keys(fs).some(p=>hasComment(fs[p],p)),
+   msg:'ひみつ発見：コメントアウト。<!'+'-- --'+'> や /* */ や // で囲んだコードは、ブラウザに無視されます。外すと虹も消えます。'},
+  {id:'glitch',test:()=>Object.keys(fs).some(p=>/\.html$/.test(p)&&hasUnclosed(fs[p])),
+   msg:'ひみつ発見：画面が揺れているのは、閉じタグの付け忘れがあるからです。タグを閉じると止まります。'},
+  {id:'copy',test:()=>false,
+   msg:'ひみつ発見：コピーした文章の後ろに、見えない文が付いてきました。貼り付けて確かめてみましょう。'}
+];
+let fxActive=[],toastT=0;
+function showToast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true},7000)}
+function checkSecrets(){
+  fxActive=[];
+  const found=store._sec||(store._sec=[]);
+  SECRETS.forEach(s=>{
+    let on=false;try{on=s.test()}catch(e){}
+    if(on){fxActive.push(s.id);if(found.indexOf(s.id)<0){found.push(s.id);showToast(s.msg);save()}}
+  });
+  $('secTxt').textContent='ひみつ '+found.length+' / '+SECRETS.length;
+}
+
+/* ===== プレビュー ===== */
+const frame=$('frame');
+function addCon(k,m){const c=$('con');c.hidden=false;const d=document.createElement('div');d.className=k;d.textContent=m;c.appendChild(d);c.scrollTop=c.scrollHeight}
+function clearCon(){const c=$('con');c.innerHTML='';c.hidden=true}
+function renderPreview(){
+  clearCon();checkSecrets();
+  $('addr').textContent=page;
+  frame.srcdoc=build(page,true,true);
+}
+addEventListener('message',e=>{
+  if(e.source!==frame.contentWindow)return;
+  const d=e.data;if(!d)return;
+  if(d.t==='c')addCon(d.k,d.m);
+  if(d.t==='nav'){
+    if(/^[a-z][a-z0-9+.-]*:/i.test(d.h)||d.h.indexOf('//')===0){addCon('log','外部リンク '+d.h+' は、ここでは開きません。実際のブラウザでは開きます。');return}
+    const p=resolve(page,d.h);if(p==null)return;
+    page=p;renderPreview();
+  }
+});
+/* プレビューは「パソコン画面(1024px)」か「スマホ画面(375px)」の幅で描き、枠に合わせて縮小して表示する */
+function fitFrame(){
+  const st=$('stage'),sw=$('sw'),fr=$('frame');
+  const aw=st.clientWidth-20,ah=st.clientHeight-20;
+  if(aw<=0||ah<=0)return;
+  const W=st.classList.contains('sp')?375:1024,sc=Math.min(1,aw/W);
+  fr.style.width=W+'px';fr.style.height=(ah/sc)+'px';
+  fr.style.transform='scale('+sc+')';
+  sw.style.width=Math.floor(W*sc)+'px';sw.style.height=ah+'px';
+}
+new ResizeObserver(fitFrame).observe($('stage'));
+fitFrame();
+if(innerWidth<760){$('stage').classList.add('sp');$('wSp').setAttribute('aria-pressed','true');$('wFull').setAttribute('aria-pressed','false');fitFrame()}
+$('wFull').onclick=()=>{$('stage').classList.remove('sp');fitFrame();$('wFull').setAttribute('aria-pressed','true');$('wSp').setAttribute('aria-pressed','false')};
+$('wSp').onclick=()=>{$('stage').classList.add('sp');fitFrame();$('wSp').setAttribute('aria-pressed','true');$('wFull').setAttribute('aria-pressed','false')};
+
+/* ===== 課題チェック ===== */
+let runId=0,chkT=0;
+function scheduleChecks(ms){clearTimeout(chkT);chkT=setTimeout(runChecks,ms)}
+function mkCtx(f,pg){
+  const doc=f.contentDocument,win=f.contentWindow;
+  const ds=[...allDirs()];
+  return{doc,win,page:pg,files:Object.assign({},fs),dirs:ds,paths:Object.keys(fs).concat(ds),
+    q:s=>doc.querySelector(s),qa:s=>[...doc.querySelectorAll(s)],
+    cs:(el,p)=>win.getComputedStyle(el)[p],px:(el,p)=>parseFloat(win.getComputedStyle(el)[p])||0,
+    txt:el=>(el.textContent||'').trim(),exists:p=>fs[p]!=null};
+}
+function runChecks(){
+  const id=++runId,idx=cur,L=LESSONS[cur];
+  const groups=new Map();
+  L.tasks.forEach((t,i)=>{
+    const pg=t.page||L.page,w=t.w||L.w||800,key=pg+'|'+w+(L.fresh?'|'+i:'');
+    if(!groups.has(key))groups.set(key,{pg,w,list:[]});
+    groups.get(key).list.push(i);
+  });
+  const res=new Array(L.tasks.length).fill(false);
+  const jobs=[...groups.values()].map(g=>new Promise(done=>{
+    const f=document.createElement('iframe');
+    f.className='probe';f.style.width=g.w+'px';f.setAttribute('sandbox','allow-scripts allow-same-origin');
+    let fin=false;
+    const end=()=>{if(fin)return;fin=true;f.remove();done()};
+    f.onload=()=>setTimeout(()=>{
+      try{const ctx=mkCtx(f,g.pg);g.list.forEach(i=>{try{res[i]=!!L.tasks[i].f(ctx)}catch(e){res[i]=false}})}catch(e){}
+      end();
+    },60);
+    f.srcdoc=build(g.pg,false,false);
+    document.body.appendChild(f);
+    setTimeout(end,4000);
+  }));
+  Promise.all(jobs).then(()=>{if(id===runId&&idx===cur)applyResults(res)});
+}
+function applyResults(res){
+  const L=LESSONS[cur],s=store[L.id],req=L.req||L.tasks.length;
+  document.querySelectorAll('.tasks li').forEach(li=>li.classList.toggle('done',!!res[+li.dataset.i]));
+  const rn=res.slice(0,req).filter(Boolean).length,on=res.slice(req).filter(Boolean).length,ot=res.length-req;
+  const all=rn===req;
+  $('sum').textContent='必須 '+rn+' / '+req+(ot?'　任意 '+on+' / '+ot:'');
+  if(all&&!s.done){s.done=true;save()}
+  const db=$('doneBox');
+  if(db){db.hidden=!all;db.textContent=!ot?'必須クリアです。':(on===ot?'必須も任意も、すべて達成です。':'必須クリアです。任意にも挑戦してみましょう。')}
+  const nx=document.querySelector('[data-act="next"]');if(nx)nx.classList.toggle('primary',!!s.done);
+  renderNav();renderProg();
+  if(all&&coreDone()&&!store._fin){store._fin=true;save();setTimeout(showFinish,600)}
+}
+
+/* ===== レッスン表示 ===== */
+function renderNav(){
+  $('nav').innerHTML=LESSONS.map((L,i)=>'<button type="button" class="chip'+((store[L.id]&&store[L.id].done)?' done':'')+(L.adv?' adv':'')+'" data-i="'+i+'" aria-current="'+(i===cur)+'"><span class="n"><span>'+(i+1)+'</span></span>'+esc(L.short)+'</button>').join('');
+}
+const coreL=()=>LESSONS.filter(L=>!L.adv);
+const coreDone=()=>coreL().every(L=>store[L.id]&&store[L.id].done);
+function renderProg(){
+  const c=coreL(),n=c.filter(L=>store[L.id]&&store[L.id].done).length;
+  $('barFill').style.width=(n/c.length*100)+'%';
+  $('progTxt').textContent=n+' / '+c.length+' 完了';
+  $('finBtn').hidden=!coreDone();
+}
+function showFinish(){
+  const found=(store._sec||[]).length,adv=LESSONS.filter(L=>L.adv&&store[L.id]&&store[L.id].done).length,advT=LESSONS.filter(L=>L.adv).length;
+  $('finStats').innerHTML='<span>本編 '+coreL().length+' / '+coreL().length+'</span><span>発展 '+adv+' / '+advT+'</span><span>ひみつ '+found+' / '+SECRETS.length+'</span>';
+  const box=$('confetti');
+  if(!box.children.length){const cols=['#e8554e','#f2a93b','#4aa86b','#3d7bd9','#9a5bd1'];
+    for(let i=0;i<46;i++){const e=document.createElement('i');e.style.left=(Math.random()*100)+'%';e.style.background=cols[i%cols.length];e.style.animationDelay=(Math.random()*3)+'s';e.style.animationDuration=(2.6+Math.random()*2)+'s';box.appendChild(e)}}
+  $('fin').hidden=false;$('finClose').focus();
+}
+$('finBtn').onclick=showFinish;
+$('finClose').onclick=()=>{$('fin').hidden=true};
+$('fin').addEventListener('click',e=>{if(e.target===$('fin'))$('fin').hidden=true});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('fin').hidden)$('fin').hidden=true});
+const DEVTIPS={
+  tools:'Console に出ている文字を探してみましょう。',
+  files:'VS Code の左のエクスプローラーで、右クリックから「新しいファイル」「新しいフォルダー」「名前の変更」ができます。Chrome にファイルをドラッグして開くと、アドレスバーの file:// の後ろに、フォルダの場所がそのまま出ます。',
+  skeleton:'検証の Elements タブで、head と body を開いたり閉じたりしてみます。<!DOCTYPE html> を消して再読み込みすると、何が変わるか試せます。',
+  structure:'Elements タブでタグにマウスを乗せると、画面上でその範囲が青くハイライトされます。header・main・footer の範囲を見てみましょう。',
+  links:'画像が出ないときは Console に赤い 404 エラーが出ます。Network タブを見ると、どのパスを探しに行って失敗したかが分かります。',
+  css:'Elements で h1 を選ぶと、右の Styles に main.css の該当行が出ます。値を直接書き換えるとその場で見た目が変わります。保存はされないので、良かった値を VS Code に写します。',
+  box:'Elements で .card を選び、Styles の下にあるボックスモデルの図を見ます。margin・border・padding の数字は、この図の上でも書き換えられます。',
+  flex:'Styles で display: flex の横にあるチェックを外したり付けたりして、並び方が変わるのを確かめます。',
+  responsive:'検証を開いたまま Ctrl+Shift+M（Mac は Cmd+Shift+M）でスマホ表示に切り替え、画面幅を変えて @media が切り替わる位置を探します。',
+  js1:'Console にエラーが出たら、右側のファイル名と行番号をクリックすると、該当のコードに飛べます。console.log(count) で途中の値も確かめられます。',
+  js2:'Console に document.getElementById("age").value と打つと、入力欄の中身をその場で確認できます。',
+  motion:'Network タブで anime.min.js が読み込まれているか（Status が 200 か）を見ます。ライブラリも、ただのファイルです。',
+  final:'スマホ表示に切り替えて、2ページとも崩れていないかを確認します。Console に赤いエラーが出ていないかも見ます。'
+};
+function pcGuide(L,i){
+  const folder='lesson-'+String(i+1).padStart(2,'0')+'-'+L.id;
+  return '<details><summary>次のステップ：本物のファイルで同じことをやる（VS Code と Chrome）</summary><ol>'+
+    '<li>配られたZIPを展開し、'+k(folder+'/my-site')+' を VS Code で開く</li>'+
+    '<li>ファイルを編集して保存する（Ctrl+S / Cmd+S）</li>'+
+    '<li>'+k('index.html')+' を Chrome で開き、保存のたびに再読み込みする</li>'+
+    '<li><strong>検証で見てみよう：</strong>'+esc(DEVTIPS[L.id]||'')+'</li>'+
+    '</ol></details>';
+}
+function renderLesson(){
+  const L=LESSONS[cur];
+  const sol=Object.keys(L.sol.files).map(p=>'<p class="sol-name">'+esc(p)+'</p><pre class="ex">'+esc(L.sol.files[p])+'</pre>').join('');
+  $('lessonBody').innerHTML=
+    '<p class="eyebrow">レッスン '+(cur+1)+' / '+LESSONS.length+'</p><h2>'+L.title+'</h2>'+
+    '<div class="prose">'+L.body+'</div>'+
+    (()=>{const r=L.req||L.tasks.length,li=(t,i)=>'<li data-i="'+i+'"><span class="mark"></span><span class="tt">'+t.t+(t.n?'<span class="tn">'+esc(t.n).replace(/\{\{(.+?)\}\}/g,'<b class="rd">$1</b>')+'</span>':'')+(t.c?'<span class="tl">例：</span>'+ex(t.c):'')+'</span></li>';return '<h3>まずはこれだけ（必須）</h3><ul class="tasks">'+L.tasks.slice(0,r).map((t,i)=>li(t,i)).join('')+'</ul>'+(L.tasks.length>r?'<h3>できればやってみよう（任意）</h3><ul class="tasks opt">'+L.tasks.slice(r).map((t,i)=>li(t,i+r)).join('')+'</ul>':'')})()+
+    '<div class="donebox" id="doneBox" hidden>このレッスンはクリアです。</div>'+pcGuide(L,cur)+
+    '<details><summary>ヒントを見る</summary><div>'+L.hint+'</div></details>'+
+    '<details><summary>答えを見る</summary>'+sol+'<div class="row"><button type="button" class="btn" data-act="apply">この答えをファイルに反映する</button></div></details>'+
+    '<div class="row"><button type="button" class="btn" data-act="reset">このレッスンを最初に戻す</button></div>'+
+    '<div class="pager"><button type="button" class="btn" data-act="prev"'+(cur===0?' disabled':'')+'>← 前へ</button><button type="button" class="btn" data-act="next"'+(cur===LESSONS.length-1?' disabled':'')+'>次のレッスン →</button></div>';
+  $('lessonBody').scrollTop=0;
+}
+$('lessonBody').addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const a=b.dataset.act,L=LESSONS[cur];
+  if(a==='prev'&&cur>0)selectLesson(cur-1);
+  if(a==='next'&&cur<LESSONS.length-1)selectLesson(cur+1);
+  if(a==='reset')replaceFiles(Object.assign({},L.files));
+  if(a==='apply')replaceFiles(Object.assign({},L.sol.files));
+});
+$('nav').addEventListener('click',e=>{const b=e.target.closest('.chip');if(b)selectLesson(+b.dataset.i)});
+function setView(v){
+  $('work').dataset.view=v;
+  document.querySelectorAll('#viewTabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.v===v)));
+}
+$('viewTabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setView(b.dataset.v)});
+function selectLesson(i){
+  cur=i;store._cur=i;loadState();
+  renderNav();renderLesson();renderTree();loadEditor();closeNameRow();
+  renderPreview();renderProg();scheduleChecks(0);setView('lesson');save();
+  const c=document.querySelector('.chip[aria-current="true"]');if(c&&c.scrollIntoView)c.scrollIntoView({block:'nearest',inline:'center'});
+}
+selectLesson(cur);
+
+/* ひみつ③：レッスンの文章をコピーすると、隠し文が付いてくる */
+const HIDDEN_TEXT='\n\n――――――\nここから先は、画面には見えない隠し文です。\nマダガスカルは、アフリカ大陸の東にある世界で4番目に大きい島で、キツネザルなど、島にしかいない動物がたくさん暮らしています。モロンダバ近くのバオバブ並木は、夕焼けの名所です。\nWebページの文字は、見えていなくても、コピーすると一緒に付いてくることがあります。';
+function discover(id){
+  const found=store._sec||(store._sec=[]);
+  if(found.indexOf(id)>=0)return;
+  found.push(id);showToast(SECRETS.find(s=>s.id===id).msg);save();
+  $('secTxt').textContent='ひみつ '+found.length+' / '+SECRETS.length;
+}
+document.addEventListener('copy',e=>{
+  const s=getSelection();
+  if(!s||s.isCollapsed||!e.clipboardData)return;
+  const el=n=>n&&(n.nodeType===1?n:n.parentElement);
+  const a=el(s.anchorNode),b=el(s.focusNode);
+  if(!a||!b||!a.closest('#lessonBody')||!b.closest('#lessonBody'))return;
+  if(a.closest('pre')||b.closest('pre'))return;
+  e.clipboardData.setData('text/plain',s.toString()+HIDDEN_TEXT);
+  e.preventDefault();
+  discover('copy');
+});
+</script>
+
+</body>
+</html>
