@@ -20,7 +20,7 @@
   --ed-bg:#fbfcfe; --ed-fg:#1b2535; --ed-line:#e3e8f0; --tree-bg:#f4f6fa;
   --f-head:'Zen Maru Gothic','Hiragino Maru Gothic ProN',sans-serif;
   --f-body:'Zen Kaku Gothic New','Hiragino Kaku Gothic ProN','Yu Gothic',system-ui,sans-serif;
-  --f-mono:'JetBrains Mono','Noto Sans Mono CJK JP',ui-monospace,Menlo,Consolas,monospace;
+  --f-mono:'JetBrains Mono','Noto Sans Mono CJK JP',ui-monospace,Menlo,Consolas,'MS Gothic',monospace;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -55,7 +55,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 .logo{display:grid;place-items:center;width:34px;height:34px;border-radius:8px;background:var(--accent);color:var(--accent-fg);font:500 13px var(--f-mono)}
 .brand h1{margin:0;font:700 17px/1.3 var(--f-head)}
 .tag{margin:0;font-size:12px;color:var(--muted);line-height:1.4}
-.prog{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.prog{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:13px;color:var(--muted)}
+.zipbtn{flex:none;display:flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--accent);border-radius:999px;background:var(--accent);color:var(--accent-fg);font-size:13px;font-weight:700;line-height:1.5;text-decoration:none;box-shadow:0 1px 3px rgba(20,28,45,.18)}
+.zipbtn:hover{filter:brightness(1.08)}
+.zipbtn .ic{font-size:15px;line-height:1}
 .bar{width:110px;height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}
 .bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
 
@@ -153,7 +156,7 @@ details[open] summary{margin-bottom:8px}
 .edwrap{display:flex;flex-direction:column;min-width:0;min-height:0}
 .edtitle{padding:5px 12px;font:500 12px var(--f-mono);color:var(--muted);border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hlwrap{position:relative;flex:1;min-height:0;background:var(--ed-bg)}
-.hl,#code{position:absolute;inset:0;margin:0;width:100%;height:100%;padding:12px;border:0;font:400 13.5px/1.65 var(--f-mono);tab-size:2;white-space:pre;letter-spacing:0}
+.hl,#code{position:absolute;inset:0;margin:0;width:100%;height:100%;padding:12px;border:0;font:400 13.5px/1.65 var(--f-mono);tab-size:2;white-space:pre;letter-spacing:0;word-spacing:0;font-variant-ligatures:none;font-kerning:none;font-feature-settings:"liga" 0,"calt" 0;scrollbar-gutter:stable}
 .hl{overflow:hidden;color:var(--ed-fg);pointer-events:none}
 #code{resize:none;overflow:auto;background:transparent;color:transparent;-webkit-text-fill-color:transparent;caret-color:var(--accent)}
 #code::selection{background:color-mix(in srgb,var(--accent) 35%,transparent)}
@@ -231,7 +234,8 @@ details[open] summary{margin-bottom:8px}
       <span class="logo" aria-hidden="true">&lt;/&gt;</span>
       <div><h1>つくって学ぶWeb基礎</h1><p class="tag">前期：まずここで試す、次に本物のファイルで</p></div>
     </div>
-    <div class="prog" aria-live="polite"><div class="bar"><i id="barFill"></i></div><span id="progTxt"></span><button type="button" class="chip" id="finBtn" hidden>修了ページ</button><a class="chip" href="web-kiso-kyozai.zip" download style="text-decoration:none;color:inherit">教材ZIPを保存</a></div>
+    <div class="prog" aria-live="polite"><div class="bar"><i id="barFill"></i></div><span id="progTxt"></span><button type="button" class="chip" id="finBtn" hidden>修了ページ</button></div>
+    <a class="zipbtn" href="web-kiso-kyozai.zip" download><span class="ic" aria-hidden="true">&#8595;</span>教材ZIPを保存</a>
   </header>
   <nav class="lessons" id="nav" aria-label="レッスン一覧"></nav>
   <div class="tabs" id="viewTabs">
