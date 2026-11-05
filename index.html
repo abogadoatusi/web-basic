@@ -1394,7 +1394,7 @@ const SECRETS=[
   {id:'glitch',test:()=>Object.keys(fs).some(p=>/\.html$/.test(p)&&hasUnclosed(fs[p])),
    msg:'ひみつ発見：画面が揺れているのは、閉じタグの付け忘れがあるからです。タグを閉じると止まります。'},
   {id:'copy',test:()=>false,
-   msg:'ひみつ発見：コピーした文章の後ろに、見えない指示文が付いてきました。メモ帳とAIチャットの両方に貼ってみましょう。これはプロンプトインジェクションという仕掛けです。'}
+   msg:'ひみつ発見：いま選んでいない文が、コピーに付いてきました。メモ帳に貼ると見えます。画面に出ていない文字でも、コピーすると一緒に付いてくることがあります。'}
 ];
 let fxActive=[],toastT=0;
 function showToast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true},7000)}
@@ -1607,7 +1607,9 @@ document.addEventListener('copy',e=>{
     e.clipboardData.setData('text/html',d.innerHTML+'<div>'+esc(HIDDEN_TEXT).replace(/\n/g,'<br>')+'</div>');
   }catch(_){}
   e.preventDefault();
+  const first=(store._sec||[]).indexOf('copy')<0;
   discover('copy');
+  if(!first)showToast('コピーしました。貼り付ける前に、中身をよく見てみましょう。選んでいない文が付いてきています。');
 });
 </script>
 
