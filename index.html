@@ -96,7 +96,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .prose p{margin:0 0 .8em}
 .prose ul,.prose ol{margin:0 0 .9em;padding-left:1.3em}
 .prose li{margin-bottom:.25em}
-code{font:400 .88em var(--f-mono);background:var(--surface2);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+code{font:400 .88em var(--f-mono);background:var(--surface2);padding:1px 5px;border-radius:4px;overflow-wrap:break-word;word-break:keep-all}
 code,pre,textarea,.hl,.con,.addr,.node{font-variant-ligatures:none;font-feature-settings:'liga' 0,'calt' 0}
 pre.ex{margin:0 0 .9em;padding:10px 12px;background:var(--ed-bg);color:var(--ed-fg);border:1px solid var(--ed-line);border-radius:6px;font:400 12.5px/1.6 var(--f-mono);overflow-x:auto;tab-size:2}
 .note{margin:0 0 .9em;padding:8px 12px;border-radius:6px;background:var(--hint-soft);color:var(--hint);font-size:13.5px}
@@ -106,6 +106,7 @@ pre.ex{margin:0 0 .9em;padding:10px 12px;background:var(--ed-bg);color:var(--ed-
 .tasks .tt{flex:1;min-width:0}
 .lesson-body strong{color:var(--bad);font-weight:700}
 .tasks .tt code,.tasks .tn b.rd{color:var(--bad);font-weight:700}
+.tasks .tn b.rd{word-break:keep-all;overflow-wrap:break-word}
 .tasks .tn{display:block;margin-top:4px;font-size:13px;color:var(--muted);line-height:1.7}
 .tasks .tl{display:block;margin-top:6px;font-size:12px;color:var(--muted)}
 .tasks pre.ex{margin:2px 0 0;font-size:12px;user-select:text}
