@@ -130,16 +130,18 @@ details[open] summary{margin-bottom:8px}
 
 /* editor + tree */
 #pEditor{display:grid;grid-template-columns:178px minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
-.treebox{grid-row:1/3;display:flex;flex-direction:column;min-height:0;background:var(--tree-bg);border-right:1px solid var(--line)}
+.treebox{grid-row:1/3;display:flex;flex-direction:column;min-height:0;overflow-y:auto;background:var(--tree-bg);border-right:1px solid var(--line)}
+.namerow.on~.drophint{display:none}
 .treehead{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;font:500 12px var(--f-mono);color:var(--muted);border-bottom:1px solid var(--line)}
 .tools{display:flex;gap:2px;padding:4px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .tool{padding:2px 7px;border:1px solid transparent;border-radius:6px;background:none;font-size:12px;color:var(--fg)}
 .tool:hover{background:var(--surface2)}
 .tool:disabled{opacity:.35;cursor:default}
-.namerow{display:none;padding:6px;border-bottom:1px solid var(--line);gap:4px;flex-wrap:wrap}
+.namerow{display:none;flex:none;padding:6px;border-bottom:1px solid var(--line);gap:6px;flex-wrap:wrap}
 .namerow.on{display:flex}
 .namerow label{flex-basis:100%;font-size:11.5px;color:var(--muted);line-height:1.4}
-.namerow input{flex:1;min-width:0;padding:3px 6px;font:400 12.5px var(--f-mono);border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--fg)}
+.namerow input{flex:1 1 100%;min-width:0;padding:5px 8px;font:400 13px var(--f-mono);border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--fg)}
+.namerow .btn{flex:1 1 0;min-width:0;padding:6px 4px}
 .nameerr{flex-basis:100%;margin:0;font-size:11.5px;color:var(--bad);line-height:1.4}
 .tree{flex:1;min-height:0;overflow:auto;padding:4px 0;font-size:13px}
 .tree ul{list-style:none;margin:0;padding:0}
@@ -174,6 +176,7 @@ details[open] summary{margin-bottom:8px}
   .work[data-view="editor"] #pEditor{display:grid}
   #pEditor>*{grid-column:1!important}
   .treebox{grid-row:auto;border-right:0;border-bottom:1px solid var(--line)}
+  #pEditor:has(.namerow.on){grid-template-rows:auto minmax(0,1fr) auto}
 }
 
 /* preview */
@@ -213,7 +216,12 @@ details[open] summary{margin-bottom:8px}
 .chip.adv::after{content:"発展";margin-left:2px;font-size:10px;color:var(--muted)}
 .chip[aria-current="true"].adv::after{color:var(--accent-fg)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;max-width:min(92vw,460px);padding:10px 16px;border-radius:10px;background:var(--fg);color:var(--bg);font-size:13.5px;line-height:1.6;box-shadow:0 6px 24px rgba(0,0,0,.25)}
-#secTxt{padding:1px 8px;border-radius:999px;background:var(--surface2)}
+@media (pointer:coarse){
+  .tool{padding:7px 10px}
+  .node{padding:7px 8px}
+  .seg button{padding:7px 12px}
+  .chip{padding:7px 12px 7px 8px}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -223,7 +231,7 @@ details[open] summary{margin-bottom:8px}
       <span class="logo" aria-hidden="true">&lt;/&gt;</span>
       <div><h1>つくって学ぶWeb基礎</h1><p class="tag">前期：まずここで試す、次に本物のファイルで</p></div>
     </div>
-    <div class="prog" aria-live="polite"><div class="bar"><i id="barFill"></i></div><span id="progTxt"></span><span id="secTxt" title="ひみつの仕掛け"></span><button type="button" class="chip" id="finBtn" hidden>修了ページ</button><a class="chip" href="web-kiso-kyozai.zip" download style="text-decoration:none;color:inherit">教材ZIPを保存</a></div>
+    <div class="prog" aria-live="polite"><div class="bar"><i id="barFill"></i></div><span id="progTxt"></span><button type="button" class="chip" id="finBtn" hidden>修了ページ</button><a class="chip" href="web-kiso-kyozai.zip" download style="text-decoration:none;color:inherit">教材ZIPを保存</a></div>
   </header>
   <nav class="lessons" id="nav" aria-label="レッスン一覧"></nav>
   <div class="tabs" id="viewTabs">
@@ -1311,6 +1319,22 @@ ta.addEventListener('keydown',e=>{
     }else edit(s0,e0,'\n'+ind+(bf==='{'?'  ':''));
     return;
   }
+  if(e.key==='}'&&s0===e0){
+    const ls=v.lastIndexOf('\n',s0-1)+1;
+    if(/^[ \t]+$/.test(v.slice(ls,s0))){
+      e.preventDefault();
+      const cut=v.slice(ls,s0).replace(/( {1,2}|\t)$/,'');
+      edit(ls,s0,cut+'}',ls+cut.length+1);return;
+    }
+  }
+  if(e.key==='>'&&s0===e0){
+    const ls=v.lastIndexOf('\n',s0-1)+1,line=v.slice(ls,s0);
+    if(/^[ \t]+<\/[a-zA-Z][a-zA-Z0-9]*$/.test(line)){
+      e.preventDefault();
+      const cut=line.replace(/^( {1,2}|\t)/,'');
+      edit(ls,s0,cut+'>',ls+cut.length+1);return;
+    }
+  }
   if(e.key==='>'&&curFile&&/\.html?$/i.test(curFile)&&s0===e0){
     const m=/<([a-zA-Z][a-zA-Z0-9]*)(?:\s[^<>]*)?$/.exec(v.slice(0,s0));
     if(m&&VOID.indexOf(m[1].toLowerCase())<0&&v.slice(s0).indexOf('<\/'+m[1])!==0){
@@ -1405,7 +1429,6 @@ function checkSecrets(){
     let on=false;try{on=s.test()}catch(e){}
     if(on){fxActive.push(s.id);if(found.indexOf(s.id)<0){found.push(s.id);showToast(s.msg);save()}}
   });
-  $('secTxt').textContent='ひみつ '+found.length+' / '+SECRETS.length;
 }
 
 /* ===== プレビュー ===== */
@@ -1591,7 +1614,6 @@ function discover(id){
   const found=store._sec||(store._sec=[]);
   if(found.indexOf(id)>=0)return;
   found.push(id);showToast(SECRETS.find(s=>s.id===id).msg);save();
-  $('secTxt').textContent='ひみつ '+found.length+' / '+SECRETS.length;
 }
 document.addEventListener('copy',e=>{
   const s=getSelection();
