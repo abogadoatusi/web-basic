@@ -1332,6 +1332,19 @@ ta.addEventListener('keydown',e=>{
     }
   }
   if(e.key==='>'&&s0===e0){
+    const mc=/<\/([a-zA-Z][a-zA-Z0-9]*)$/.exec(v.slice(0,s0));
+    if(mc){
+      const close='<\/'+mc[1]+'>',after=v.slice(s0),gap=/^[ \t\n]*/.exec(after)[0];
+      if(after.slice(gap.length).indexOf(close)===0){
+        e.preventDefault();
+        const a=s0-mc[0].length,ls=v.lastIndexOf('\n',a-1)+1;
+        const alone=/^[ \t]*$/.test(v.slice(ls,a))&&gap.indexOf('\n')>=0;
+        const from=alone?ls:a;
+        edit(from,s0+gap.length,'',from+close.length);return;
+      }
+    }
+  }
+  if(e.key==='>'&&s0===e0){
     const ls=v.lastIndexOf('\n',s0-1)+1,line=v.slice(ls,s0);
     if(/^[ \t]+<\/[a-zA-Z][a-zA-Z0-9]*$/.test(line)){
       e.preventDefault();
@@ -1418,21 +1431,37 @@ function hasUnclosed(t){
 }
 const SECRETS=[
   {id:'rainbow',test:()=>Object.keys(fs).some(p=>hasComment(fs[p],p)),
-   msg:'ひみつ発見：コメントアウト。<!'+'-- --'+'> や /* */ や // で囲んだコードは、ブラウザに無視されます。外すと虹も消えます。'},
+   msg:'ひみつ①：コメントアウトした部分は、ブラウザに無視されます。'},
   {id:'glitch',test:()=>Object.keys(fs).some(p=>/\.html$/.test(p)&&hasUnclosed(fs[p])),
-   msg:'ひみつ発見：画面が揺れているのは、閉じタグの付け忘れがあるからです。タグを閉じると止まります。'},
+   msg:'ひみつ②：閉じタグを忘れると、画面が揺れます。'},
   {id:'copy',test:()=>false,
-   msg:'ひみつ発見：いま選んでいない文が、コピーに付いてきました。メモ帳に貼ると見えます。画面に出ていない文字でも、コピーすると一緒に付いてくることがあります。'}
+   msg:'ひみつ③：見えない文が、コピーに付いてきました。メモ帳に貼ると見えます。'}
 ];
 let fxActive=[],toastT=0;
-function showToast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true},7000)}
+let toastQ=[],toastOn=false,copyToastAt=0;
+function showToast(m){if(toastQ[toastQ.length-1]!==m)toastQ.push(m);if(!toastOn)nextToast()}
+function nextToast(){
+  const t=$('toast');
+  if(!toastQ.length){toastOn=false;t.hidden=true;return}
+  toastOn=true;t.textContent=toastQ.shift();t.hidden=false;
+  clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true;setTimeout(nextToast,260)},4500);
+}
+let secT=0;
 function checkSecrets(){
   fxActive=[];
-  const found=store._sec||(store._sec=[]);
+  const found=store._sec||(store._sec=[]),hit=[];
   SECRETS.forEach(s=>{
     let on=false;try{on=s.test()}catch(e){}
-    if(on){fxActive.push(s.id);if(found.indexOf(s.id)<0){found.push(s.id);showToast(s.msg);save()}}
+    if(on){fxActive.push(s.id);if(found.indexOf(s.id)<0)hit.push(s)}
   });
+  clearTimeout(secT);
+  if(!hit.length)return;
+  secT=setTimeout(()=>{
+    hit.forEach(s=>{
+      let still=false;try{still=s.test()}catch(e){}
+      if(still&&found.indexOf(s.id)<0){found.push(s.id);showToast(s.msg);save()}
+    });
+  },2500);
 }
 
 /* ===== プレビュー ===== */
@@ -1635,7 +1664,7 @@ document.addEventListener('copy',e=>{
   e.preventDefault();
   const first=(store._sec||[]).indexOf('copy')<0;
   discover('copy');
-  if(!first)showToast('コピーしました。貼り付ける前に、中身をよく見てみましょう。選んでいない文が付いてきています。');
+  if(!first&&Date.now()-copyToastAt>30000){copyToastAt=Date.now();showToast('コピーしました。中身を確かめてみましょう。')}
 });
 </script>
 
