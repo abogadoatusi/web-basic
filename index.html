@@ -164,10 +164,10 @@ details[open] summary{margin-bottom:8px}
 .hc{color:var(--muted);opacity:.7}
 .ht{color:var(--accent)}
 .er{text-decoration:underline wavy var(--bad);text-decoration-skip-ink:none;text-underline-offset:3px}
-.lint{flex-basis:100%;display:flex;flex-direction:column;gap:2px;max-height:84px;overflow:auto}
-.lint .le{white-space:normal;text-align:left;border:0;background:var(--bad-soft);color:var(--bad);border-radius:6px;padding:3px 8px;font-size:12px;line-height:1.5}
+.lint{flex-basis:100%;display:flex;flex-direction:column;gap:3px;max-height:96px;overflow:auto;margin:-1px 0 2px}
+.lint .le{white-space:normal;text-align:left;border:0;border-left:3px solid var(--bad);background:var(--bad-soft);color:var(--bad);border-radius:4px;padding:6px 10px;font-size:13px;font-weight:700;line-height:1.55}
 .lint .lm{color:var(--muted);padding:0 8px}
-.warn{margin-left:6px;color:var(--bad);font-size:11px}
+.warn{margin-left:6px;color:var(--bad);font-size:13px;font-weight:700}
 .ph{background:var(--bad-soft);color:var(--bad);border-radius:3px;box-shadow:0 0 0 1px var(--bad)}
 .todo{margin-left:6px;color:var(--bad);font-size:10px}
 .gh{color:var(--muted);opacity:.55}
@@ -1177,10 +1177,10 @@ function lintHtml(t,caret){
       let i=-1;for(let k=stack.length-1;k>=0;k--)if(stack[k].n===name){i=k;break}
       if(i<0){
         const top=stack[stack.length-1],g=nearest(name,stack.map(x=>x.n).reverse(),1);
-        add(a,b,'</'+name+'> に対応する <'+name+'> がありません'+(g?'（</'+g+'> のまちがい？）':''));
+        add(a,b,'</'+name+'> に対応する開きタグ <'+name+'> がありません'+(g?'（</'+g+'> のまちがい？）':''));
         if(g&&top&&g===top.n)stack.pop();
       }else{
-        for(let k=stack.length-1;k>i;k--)if(!L_OPT.has(stack[k].n))add(stack[k].a,stack[k].b,'<'+stack[k].n+'> の閉じタグ </'+stack[k].n+'> がありません');
+        for(let k=stack.length-1;k>i;k--)if(!L_OPT.has(stack[k].n))add(stack[k].a,stack[k].b,'<'+stack[k].n+'> が閉じられていません。終わりに </'+stack[k].n+'> を足します');
         stack.length=i;
       }
       continue;
@@ -1191,13 +1191,13 @@ function lintHtml(t,caret){
     if(top&&(top.n==='ul'||top.n==='ol')&&name!=='li'&&name!=='script'&&name!=='template')add(a,b,top.n+' の直下には <li> だけ置けます（<'+name+'> は <'+top.n+'> の外に出します）');
     if(VOID.indexOf(name)>=0||/\/\s*$/.test(m[3]))continue;
     if(name==='script'||name==='style'){
-      if(/\bsrc\s*=/.test(m[3])&&name==='script'){const e2=t.toLowerCase().indexOf('<\/script',b);const c2=e2<0?-1:t.indexOf('>',e2);if(c2>=0)re.lastIndex=c2+1;else add(a,b,'<script> の閉じタグ <\/script> がありません');continue}
+      if(/\bsrc\s*=/.test(m[3])&&name==='script'){const e2=t.toLowerCase().indexOf('<\/script',b);const c2=e2<0?-1:t.indexOf('>',e2);if(c2>=0)re.lastIndex=c2+1;else add(a,a+1+name.length,'<script> が閉じられていません。終わりに <\/script> を足します');continue}
       const e=t.toLowerCase().indexOf('</'+name,b),c=e<0?-1:t.indexOf('>',e);
-      if(c<0){add(a,b,'<'+name+'> の閉じタグ </'+name+'> がありません');re.lastIndex=t.length}else re.lastIndex=c+1;
+      if(c<0){add(a,a+1+name.length,'<'+name+'> が閉じられていません。終わりに </'+name+'> を足します');re.lastIndex=t.length}else re.lastIndex=c+1;
       continue}
-    stack.push({n:name,a:a,b:b});
+    stack.push({n:name,a:a,b:a+1+name.length});
   }
-  stack.forEach(x=>{if(!L_OPT.has(x.n))add(x.a,x.b,'<'+x.n+'> の閉じタグ </'+x.n+'> がありません')});
+  stack.forEach(x=>{if(!L_OPT.has(x.n))add(x.a,x.b,'<'+x.n+'> が閉じられていません。終わりに </'+x.n+'> を足します')});
   return errs;
 }
 function lintCss(t,caret){
