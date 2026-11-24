@@ -372,20 +372,44 @@ LESSONS.push({
 </ul>
 <p class="note">保存できないときは、先生に声をかけてください。</p>
 <h3>1. VS Code を用意する</h3>
+<p><strong>まだPCに入っていない場合：インストールする</strong></p>
+<ol>
+<li>Chromeで <code>code.visualstudio.com</code> を開き、大きな青いボタン（Download）を押す。自分のPCに合うもの（Windows / Mac）が自動で選ばれます</li>
+<li>Windows：ダウンロードされたファイルを開き、「同意する」を選んで、あとは「次へ」で進めます</li>
+<li>Mac：ダウンロードされたファイルを開くと VS Code のアイコンが出るので、「アプリケーション」フォルダへドラッグします</li>
+</ol>
+<p><strong>画面を日本語にする</strong>（英語のままでも進められます）</p>
+<ol>
+<li>左端にある、四角が4つ並んだアイコン（拡張機能）を押す</li>
+<li>検索欄に <code>Japanese</code> と入れて、「Japanese Language Pack for Visual Studio Code」の ${k('Install')} を押す</li>
+<li>右下に出る ${k('Restart')} を押すと、メニューが日本語になります</li>
+</ol>
+<p><strong>フォルダを開く</strong></p>
 <ul>
-<li>公式サイト（code.visualstudio.com）からインストールする</li>
-<li>メニューの「ファイル」→「フォルダーを開く」で、手順0で展開した ${k('lesson-01-tools')} の中の ${k('my-site')} フォルダを開く</li>
-<li>左のエクスプローラーでファイルをクリックすると、右に中身が出る</li>
+<li>メニューの「ファイル」→「<strong>フォルダーを開く</strong>」で、手順0で展開した ${k('lesson-01-tools')} の中の ${k('my-site')} フォルダを開く</li>
+<li>英語表示のままなら <code>File</code> → <code>Open Folder…</code> です。すぐ近くにある <code>Open File…</code>（ファイルを開く）と<strong>まちがえやすい</strong>ので気をつけます。ファイルを1つだけ開くと、左にファイル一覧が出ません</li>
+<li>左のエクスプローラー（ファイル一覧）でファイル名をクリックすると、右に中身が出る</li>
 <li>保存は Windows が Ctrl+S、Mac が Cmd+S。保存しないとChromeに反映されない</li>
 </ul>
 <p class="note">拡張機能「Live Server」を入れると、保存するたびにChromeが自動で更新されます（任意）。</p>
 <h3>2. Chrome で開く</h3>
-<p>${k('index.html')} をChromeにドラッグするか、ダブルクリックで開きます。編集して保存したら、Chromeで再読み込み（Ctrl+R / Cmd+R）します。</p>
+<p>ここで開く ${k('index.html')} は、<strong>VS Codeの画面の中にあるものではありません</strong>。PCのフォルダ（Windows はエクスプローラー、Mac は Finder）にある、ファイルそのものです。</p>
+<ol>
+<li>デスクトップなどに置いた ${k('web-kiso-kyozai')} フォルダを開く</li>
+<li>${k('lesson-01-tools')} → ${k('my-site')} の順に進む</li>
+<li>中にある ${k('index.html')} を<strong>ダブルクリック</strong>（マウスの左ボタンを、間をあけずに2回押す）</li>
+</ol>
+<ul>
+<li>Chrome以外のブラウザが開いてしまったら、${k('index.html')} を右クリック →「プログラムから開く」→ Google Chrome を選びます</li>
+<li>ダブルクリックでうまく開かないときは、先にChromeを開いておいて、${k('index.html')} のアイコンをChromeの画面へ<strong>ドラッグ</strong>しても開けます</li>
+</ul>
+<p>編集して保存したら、Chromeで再読み込み（Ctrl+R / Cmd+R）します。</p>
 <h3>3. Chrome の「検証」を開く</h3>
 <ul>
 <li>ページを右クリックして「検証」。または F12（Mac は Cmd+Option+I）</li>
+<li>開いた部分の<strong>上側に、タブが横に並びます</strong>。${k('Elements')} ${k('Console')} ${k('Sources')} ${k('Network')} … の中から選びます。幅が狭くて見えないときは、タブの右端にある ${k('>>')} を押すと残りが出ます</li>
 <li>${k('Elements')}：いま表示しているHTMLとCSSの中身。値を書き換えて試せます</li>
-<li>${k('Console')}：エラーや ${k('console.log')} の出力が出ます</li>
+<li>${k('Console')}：エラーや ${k('console.log')} の出力が出ます。<strong>このレッスンの合言葉も、ここに出ます</strong></li>
 <li>${k('Network')}：読み込んだファイルと、見つからなかったファイル（404）</li>
 </ul>
 <p>検証での書き換えは保存されません。再読み込みすると元に戻ります。うまくいった値を VS Code のファイルに写します。</p>
@@ -452,7 +476,7 @@ ${ex('my-site/\n  index.html   トップページ（この名前が基本）\n  
 LESSONS.push({
   id:'skeleton', req:1, short:'HTMLの骨格', title:'HTMLの骨格を書く',
   open:'index.html', page:'index.html',
-  files:{'index.html':'<!\x2d- ① 一番上：「HTML5で書くよ」の宣言（!DOCTYPE html）を書く -->\n<!\x2d- ② html タグで全体を囲む（lang="ja" を付ける） -->\n<!\x2d- ③ head の中：文字化け防止の meta charset と、タブの名前 title -->\n<!\x2d- ④ body の中：見える内容。下の h1 と p を、ここへ入れる -->\n\n<h1>はじめてのWebページ</h1>\n<p>これが最初のページです。</p>\n'},
+  files:{'index.html':'<!\x2d- ① 1行目に：「HTML5で書くよ」の宣言（!DOCTYPE html）を書く -->\n<!\x2d- ② html タグで全体を囲む（lang="ja" を付ける） -->\n<!\x2d- ③ head の中：文字化け防止の meta charset と、タブの名前 title -->\n<!\x2d- ④ body の中：見える内容。下の h1 と p を、ここへ入れる -->\n\n<h1>はじめてのWebページ</h1>\n<p>これが最初のページです。</p>\n'},
   body:`
 <p>HTMLはタグで文章に意味を付ける言語です。タグは <code>&lt;名前&gt;</code> で始めて、<code>&lt;/名前&gt;</code> で閉じます。</p>
 ${ex('<p>こんにちは</p>')}
@@ -477,7 +501,7 @@ ${ex('<!DOCTYPE html>\n<html lang="ja">\n<head>\n  <meta charset="UTF-8">\n  <ti
 <li><strong>なぜ字下げするのか</strong>：ブラウザは気にしませんが、入れ子の深さが人間に見えるようになります。閉じ忘れにも気づきやすくなります。</li>
 </ul>`,
   tasks:[
-    {t:`1行目に ${k('<!DOCTYPE html>')} を書き、${k('<html lang="ja">')} で全体を囲む`,c:'<!DOCTYPE html>  <!\x2d- HTML5で書く、という宣言 -->\n<html lang="ja">  <!\x2d- 全体を囲む。日本語のページ -->\n  ……全部ここに入る……\n</html>  <!\x2d- 全体の終わり -->',f:c=>/^\s*(<!-{2}[\s\S]*?-{2}>\s*)*<!doctype html>/i.test(c.files['index.html'])&&c.doc.documentElement.lang==='ja'},
+    {t:`1行目に ${k('<!DOCTYPE html>')} を書き、${k('<html lang="ja">')} で全体を囲む`,n:'コメント（<!\x2d- -->）の行は、消してもそのままでもOKです。',c:'<!DOCTYPE html>  <!\x2d- HTML5で書く、という宣言 -->\n<html lang="ja">  <!\x2d- 全体を囲む。日本語のページ -->\n  ……全部ここに入る……\n</html>  <!\x2d- 全体の終わり -->',f:c=>/^\s*(<!-{2}[\s\S]*?-{2}>\s*)*<!doctype html>/i.test(c.files['index.html'])&&c.doc.documentElement.lang==='ja'},
     {t:`${k('<head>')} の中に ${k('<meta charset="UTF-8">')} と ${k('<title>')} を入れる`,c:'<head>  <!\x2d- ページの情報（画面には出ない） -->\n  <meta charset="UTF-8">  <!\x2d- 文字化けを防ぐ -->\n  <title>ページの題名</title>  <!\x2d- タブに出る名前 -->\n</head>',f:c=>{const m=c.q('head meta[charset]');return !!m&&/utf-?8/i.test(m.getAttribute('charset'))&&!!c.q('head title')&&c.txt(c.q('head title'))!==''}},
     {t:`${k('<body>')} で見える内容を囲み、h1 を自分のページ名に書き換える`,c:'<body>  <!\x2d- 画面に見える内容はここ -->\n  <h1>ページ名</h1>  <!\x2d- 大きな見出し -->\n  <p>こんにちは</p>  <!\x2d- 文章（段落） -->\n</body>',f:c=>{const h=c.q('body h1');return !!h&&c.txt(h)!==''&&c.txt(h)!=='はじめてのWebページ'}}
   ],
@@ -508,7 +532,7 @@ ${ex('<ul>\n  <li>りんご</li>\n  <li>みかん</li>\n</ul>')}
 <li><strong>なぜ header・main・footer なのか</strong>：箱を並べるだけだと、どこが主な内容か分かりません。名前で役割を伝えると、人にも読み上げソフトにも分かりやすくなります。</li>
 </ul>`,
   tasks:[
-    {t:`材料の3行を ${k('<ul>')} と ${k('<li>')} のリストにする`,c:'<ul>  <!\x2d- 順番のないリストの入れ物 -->\n  <li>玉ねぎ</li>  <!\x2d- 1項目ぶん（これを行の数だけ） -->\n  <li>じゃがいも</li>\n</ul>',f:c=>c.qa('ul li').length>=3},
+    {t:`材料の3行を ${k('<ul>')} と ${k('<li>')} のリストにする`,n:'コメント（<!\x2d- -->）の行は、消してもそのままでもOKです。',c:'<ul>  <!\x2d- 順番のないリストの入れ物 -->\n  <li>玉ねぎ</li>  <!\x2d- 1項目ぶん（これを行の数だけ） -->\n  <li>じゃがいも</li>\n</ul>',f:c=>c.qa('ul li').length>=3},
     {t:`作り方の3行を ${k('<ol>')} と ${k('<li>')} のリストにする`,c:'<ol>  <!\x2d- 順番のあるリストの入れ物 -->\n  <li>野菜を切る</li>  <!\x2d- 1番目 -->\n  <li>煮込む</li>  <!\x2d- 2番目 -->\n</ol>',f:c=>c.qa('ol li').length>=3},
     {t:`${k('<header>')}・${k('<main>')}・${k('<footer>')} でページを区切る`,c:'<header>  <!\x2d- ページの上の部分 -->\n  <h1>ページ名</h1>\n</header>\n<main>  <!\x2d- このページの主な内容 -->\n  ……見出しやリスト……\n</main>\n<footer>  <!\x2d- ページの下の部分 -->\n  <p>ひとこと</p>\n</footer>',f:c=>!!c.q('header h1')&&!!c.q('main')&&!!c.q('footer')}
   ],
@@ -544,11 +568,12 @@ ${ex('about.html          同じフォルダの about.html\nimages/photo.svg   i
 <li><strong>画像が出ないときは</strong>：まず、パスとファイル名を、ファイル一覧と見比べます。大文字小文字や拡張子の違いが、よくある原因です。</li>
 </ul>`,
   tasks:[
-    {t:`画像のパスを直して、写真を表示する（ヒント：${k('images/')}）`,c:'<!\x2d- src：画像の場所（images フォルダの中の photo.svg）。width：横幅 -->\n<img src="images/photo.svg" width="300">',f:c=>{const i=c.q('img');return !!i&&i.naturalWidth>0}},
+    {t:`画像のパスを直して、写真を表示する（ヒント：${k('images/')}）`,n:'コメント（<!\x2d- -->）の行は、消してもそのままでもOKです。',c:'<!\x2d- src：画像の場所（images フォルダの中の photo.svg）。width：横幅 -->\n<img src="images/photo.svg" width="300">',f:c=>{const i=c.q('img');return !!i&&i.naturalWidth>0}},
     {t:`画像に説明文をつける（${k('alt')}）`,n:'{{画像が出なかったり}}、目の見えない人が読み上げで聞くときに使う「写真の説明」です。左の index.html の <img ...> の中に、{{alt="説明"}} を1つ足します。width の前に入れればOKです。',c:'<!\x2d- alt="…" が、画像の説明文 -->\n<img src="images/photo.svg" alt="山と太陽の風景" width="300">',f:c=>{const i=c.q('img');return !!i&&(i.getAttribute('alt')||'').trim()!==''}},
     {t:`「くわしい自己紹介はこちら。」をクリックすると about.html に飛ぶようにする`,n:'index.html の中の、その1行の文字を {{<a href="about.html">}} と {{</a>}} ではさみます。a タグは「クリックできる文字」を作るタグです。右のプレビューで、文字が青い下線つきになれば成功。',c:'<!\x2d- href：行き先のファイル。a と /a ではさんだ文字がリンクになる -->\n<a href="about.html">自己紹介</a>',f:c=>c.qa('a').some(a=>a.getAttribute('href')==='about.html'&&c.txt(a)!=='')},
     {t:`about.html から index.html に戻れるようにする`,n:'①左のファイル一覧で {{about.html}} をクリックして開く　②<body> の中の好きな場所に、下の1行を足す。さっきの逆向きのリンクです（行き先が {{index.html}} になるだけ）。',c:'<!\x2d- about.html の body の中に書く。行き先は index.html -->\n<a href="index.html">トップへ戻る</a>',page:'about.html', f:c=>c.qa('a').some(a=>a.getAttribute('href')==='index.html'&&c.txt(a)!=='')},
-    {t:`もう1枚、別の画像を表示してみる（やってみたい人向け）`,n:'{{images}} フォルダに sea.svg（海の絵）を用意しました。index.html に <img> をもう1つ足して表示します。{{sea.svg}} の部分を書き換えるだけで、さっきと同じ形です。',c:'<!\x2d- さっきと同じ形。ファイル名を sea.svg にするだけ -->\n<img src="images/sea.svg" alt="夕日の海" width="300">',f:c=>/<img\b[^>]*\bsrc\s*=\s*["']images\/sea\.svg["']/i.test(c.files['index.html']||'')&&c.qa('img').filter(i=>i.naturalWidth>0).length>=2}
+    {t:`もう1枚、別の画像を表示してみる（やってみたい人向け）`,n:'{{images}} フォルダに sea.svg（海の絵）を用意しました。index.html に <img> をもう1つ足して表示します。{{sea.svg}} の部分を書き換えるだけで、さっきと同じ形です。',c:'<!\x2d- さっきと同じ形。ファイル名を sea.svg にするだけ -->\n<img src="images/sea.svg" alt="夕日の海" width="300">',f:c=>/<img\b[^>]*\bsrc\s*=\s*["']images\/sea\.svg["']/i.test(c.files['index.html']||'')&&c.qa('img').filter(i=>i.naturalWidth>0).length>=2},
+    {t:`「調べものはこちら。」を、外部サイトへのリンクにする（別のタブで開く）`,n:'index.html のその行を {{<a href="https://developer.mozilla.org/ja/" target="_blank">}} と {{</a>}} ではさみます。外部サイトは {{https://}} から全部書きます。{{target="_blank"}} は「別のタブで開く」という意味です。',c:'<!\x2d- href：外部サイトは https:// から書く。target="_blank"：別のタブで開く -->\n<p><a href="https://developer.mozilla.org/ja/" target="_blank">MDN Web Docs</a>で調べものができます。</p>',f:c=>{const a=c.qa('a').find(x=>/^https?:/.test(x.getAttribute('href')||''));return !!a&&a.getAttribute('target')==='_blank'}}
   ],
   hint:`画像は ${k('<img src="images/photo.svg" alt="山の風景">')}。リンクは ${k('<a href="about.html">自己紹介</a>')} のように書きます。about.html を編集するには、左のファイル一覧からクリックします。`,
   sol:{files:{
@@ -565,7 +590,7 @@ LESSONS.push({
   id:'css', req:1, short:'CSS入門', title:'CSSで色と文字を整える',
   open:'index.html', page:'index.html',
   files:{
-    'index.html':HTML_HEAD+'  <title>やさしい休日</title>\n  <!\x2d- ここに link タグで css/main.css を読み込む -->\n</head>\n<body>\n  <h1>やさしい休日</h1>\n  <p class="lead">朝はゆっくりコーヒーを淹れます。</p>\n  <p>午後は本を読んで、夕方に少し歩きます。</p>\n</body>\n</html>\n',
+    'index.html':HTML_HEAD+'  <title>やさしい休日</title>\n  <!\x2d- この下の行に、link タグで css/main.css を読み込む -->\n</head>\n<body>\n  <h1>やさしい休日</h1>\n  <p class="lead">朝はゆっくりコーヒーを淹れます。</p>\n  <p>午後は本を読んで、夕方に少し歩きます。</p>\n</body>\n</html>\n',
     'css/main.css':'body {\n  font-family: sans-serif;\n}\n\n/* ここに h1 や p のルールを足していきます */\n'
   },
   body:`
@@ -596,7 +621,9 @@ ${ex('color: royalblue;       名前（覚えやすい）\ncolor: #2a4a8a;      
   tasks:[
     {t:`index.html から main.css を呼び出す（${k('<link>')} を1行足す）`,n:'①左のファイル一覧で {{index.html}} を開く　②{{<head>}} と {{</head>}} のあいだに、下の1行を足す。コメント（<!\x2d- -->）の行は、消してもそのままでもOKです。',c:'<!\x2d- rel：これはCSSです、という意味。href：CSSファイルの場所 -->\n<link rel="stylesheet" href="css/main.css">',f:c=>/<link\b[^>]*\bhref\s*=\s*["']css\/main\.css["'][^>]*>/i.test((c.files['index.html']||'').replace(/<!-{2}[\s\S]*?-{2}>/g,''))},
     {t:`見出し（h1）の文字の色を変える`,n:'①左のファイル一覧で {{css/main.css}} を開く　②一番下に、下の3行を足す。{{#2a4a8a}} は色の書き方の1つです。royalblue のような色の名前でもOKです。',c:'/* h1（見出し）全部の見た目 */\nh1 {\n  color: #2a4a8a;  /* 文字の色 */\n}',f:c=>c.cs(c.q('h1'),'color')!=='rgb(0, 0, 0)'},
-    {t:`文章（p）の文字を大きくする`,n:'同じ {{css/main.css}} の一番下に足します。{{18px}} は文字の大きさです。数字を大きくすると、プレビューの文字も大きくなります。',c:'/* p（文章）全部の見た目 */\np {\n  font-size: 18px;  /* 文字の大きさ */\n}',f:c=>c.px(c.q('p'),'fontSize')>=18}
+    {t:`文章（p）の文字を大きくする`,n:'同じ {{css/main.css}} の一番下に足します。{{18px}} は文字の大きさです。数字を大きくすると、プレビューの文字も大きくなります。',c:'/* p（文章）全部の見た目 */\np {\n  font-size: 18px;  /* 文字の大きさ */\n}',f:c=>c.px(c.q('p'),'fontSize')>=18},
+    {t:`ページ全体（body）の背景に色をつける`,n:'{{css/main.css}} のいちばん上にある {{body}} のルールの { } の中に、1行足します。',c:'body {\n  font-family: sans-serif;\n  background-color: #eef3fb;  /* 背景の色 */\n}',f:c=>{const b=c.cs(c.q('body'),'backgroundColor');return b!=='rgba(0, 0, 0, 0)'&&b!=='rgb(255, 255, 255)'}},
+    {t:`最初の段落だけ太字にする（${k('class="lead"')}）`,n:'{{index.html}} の1つ目の p には {{class="lead"}} が付いています。クラスを指定するときは、CSS側で先頭に {{.}}（ピリオド）を付けます。',c:'/* class="lead" が付いた要素だけ */\n.lead {\n  font-weight: 700;  /* 文字の太さ */\n}',f:c=>{const e=c.q('.lead');return !!e&&Number(c.cs(e,'fontWeight'))>=600}}
   ],
   hint:`まず index.html に ${k('<link rel="stylesheet" href="css/main.css">')} を追加します。つぎに main.css を開き、${k('h1 { color: #2a4a8a; }')} のように書きます。`,
   sol:{files:{
@@ -642,7 +669,9 @@ ${ex('padding：枠線の内側。背景色が「付く」。箱が大きくな�
     {t:`${k('border-radius')} で角を丸くする`,c:'/* .card { } の中に足す */\nborder-radius: 12px;  /* 角の丸み */',f:c=>c.px(c.q('.card'),'borderTopLeftRadius')>0}
   ],
   hint:`${k('.card { padding: 20px; border: 2px solid #2a4a8a; border-radius: 12px; max-width: 400px; margin: 0 auto; }')} のように、${k('.card')} の { } の中に1行ずつ足します。`,
-  sol:{files:{'css/main.css':'body {\n  font-family: sans-serif;\n  margin: 0;\n  padding: 24px;\n}\n\n.card {\n  background-color: #eef3ff;\n  padding: 20px;\n  border: 2px solid #2a4a8a;\n  border-radius: 12px;\n  max-width: 400px;\n  margin: 0 auto;\n}\n'}}
+  sol:{files:{
+    'index.html':HTML_HEAD+'  <title>おすすめ</title>\n'+LINK_CSS+'</head>\n<body>\n  <div class="card">\n    <h2>今日のおすすめ</h2>\n    <p>余白と枠線を足すと、文字のかたまりが「箱」に見えてきます。</p>\n  </div>\n</body>\n</html>\n',
+    'css/main.css':'body {\n  font-family: sans-serif;\n  margin: 0;\n  padding: 24px;\n}\n\n.card {\n  background-color: #eef3ff;\n  padding: 20px;\n  border: 2px solid #2a4a8a;\n  border-radius: 12px;\n  max-width: 400px;\n  margin: 0 auto;\n}\n'}}
 });
 
 LESSONS.push({
@@ -683,14 +712,16 @@ ${ex('gap    ：親に書く。子と子の「あいだだけ」に隙間がで�
     {t:`${k('justify-content')} で並びを中央寄せや均等配置にする`,c:'/* .cards { } の中に足す */\njustify-content: center;  /* 横方向の配置：中央寄せ */',f:c=>!['normal','flex-start','start','stretch'].includes(c.cs(c.q('.cards'),'justifyContent'))}
   ],
   hint:`${k('.cards')} というセレクタを新しく作り、{ } の中に ${k('display: flex;')} と ${k('gap: 16px;')}、${k('justify-content: center;')} を書きます。`,
-  sol:{files:{'css/main.css':'body {\n  font-family: sans-serif;\n  margin: 0;\n  padding: 24px;\n}\n\n.cards {\n  display: flex;\n  gap: 16px;\n  justify-content: center;\n}\n\n.card {\n  background-color: #eef3ff;\n  padding: 16px;\n  border-radius: 8px;\n}\n'}}
+  sol:{files:{
+    'index.html':HTML_HEAD+'  <title>プラン</title>\n'+LINK_CSS+'</head>\n'+CARDS_BODY,
+    'css/main.css':'body {\n  font-family: sans-serif;\n  margin: 0;\n  padding: 24px;\n}\n\n.cards {\n  display: flex;\n  gap: 16px;\n  justify-content: center;\n}\n\n.card {\n  background-color: #eef3ff;\n  padding: 16px;\n  border-radius: 8px;\n}\n'}}
 });
 
 LESSONS.push({
   id:'responsive', req:1, short:'スマホ対応', title:'スマホ画面にも対応する',
   open:'css/main.css', page:'index.html', w:800,
   files:{
-    'index.html':HTML_HEAD+'  <title>プラン</title>\n'+LINK_CSS+'  <!\x2d- ここに viewport の meta タグ -->\n</head>\n'+CARDS_BODY,
+    'index.html':HTML_HEAD+'  <title>プラン</title>\n'+LINK_CSS+'  <!\x2d- この下の行に、viewport の meta タグ -->\n</head>\n'+CARDS_BODY,
     'css/main.css':'body {\n  font-family: sans-serif;\n  margin: 0;\n  padding: 24px;\n}\n\n.cards {\n  display: flex;\n  gap: 16px;\n}\n\n.card {\n  flex: 1;\n  background-color: #eef3ff;\n  padding: 16px;\n  border-radius: 8px;\n}\n\n/* ここに @media を書く */\n'
   },
   body:`
@@ -711,7 +742,7 @@ ${ex('/* 画面幅が600px以下のときだけ */\n@media (max-width: 600px) {\
 <p>同じ要素に2つのルールがぶつかると、<strong>あとに書いたほうが勝ちます</strong>。@media を先に書くと、あとの普通のルールに上書きされて、効かなくなることがあります。</p>
 <p>プレビュー右上の<strong>スマホ幅</strong>ボタンで、幅375pxの見え方を確認できます。（<strong>PC幅</strong>は1024pxで表示します）</p>`,
   tasks:[
-    {t:`index.html の ${k('<head>')} に viewport の ${k('<meta>')} を入れる`,c:'<!\x2d- スマホで実際の画面幅のまま表示する。head の中に書く -->\n<meta name="viewport" content="width=device-width, initial-scale=1.0">',f:c=>!!c.q('meta[name="viewport"]')},
+    {t:`index.html の ${k('<head>')} に viewport の ${k('<meta>')} を入れる`,n:'コメント（<!\x2d- -->）の行は、消してもそのままでもOKです。',c:'<!\x2d- スマホで実際の画面幅のまま表示する。head の中に書く -->\n<meta name="viewport" content="width=device-width, initial-scale=1.0">',f:c=>!!c.q('meta[name="viewport"]')},
     {t:`幅360pxの画面では、カードが縦に並ぶ（${k('@media')} と ${k('flex-direction: column')}）`,c:'/* 画面幅が600px以下のときだけ、中のルールを使う */\n@media (max-width: 600px) {\n  .cards {\n    flex-direction: column;  /* 横並びをやめて縦に積む */\n  }\n}',w:360, f:c=>{const r=c.qa('.card').map(e=>e.getBoundingClientRect().top);return r.length>=3&&r[1]>r[0]+5&&r[2]>r[1]+5}}
   ],
   hint:`CSSの一番下に ${k('@media (max-width: 600px) { .cards { flex-direction: column; } }')} を書きます。{ } の入れ子（外側が @media、内側が .cards）に注意します。`,
@@ -724,7 +755,7 @@ LESSONS.push({
   id:'js1', req:1, short:'JavaScript①', title:'JavaScript：ボタンで動かす',
   open:'js/main.js', page:'index.html', w:800, fresh:true,
   files:{
-    'index.html':HTML_HEAD+'  <title>ボタン</title>\n'+LINK_CSS+'</head>\n<body>\n  <h1>ボタンで変わるページ</h1>\n  <button id="btn">押してね</button>\n  <p id="msg">まだ押されていません</p>\n  <!\x2d- ここに script タグ（body の終わりの直前） -->\n</body>\n</html>\n',
+    'index.html':HTML_HEAD+'  <title>ボタン</title>\n'+LINK_CSS+'</head>\n<body>\n  <h1>ボタンで変わるページ</h1>\n  <button id="btn">押してね</button>\n  <p id="msg">まだ押されていません</p>\n  <!\x2d- この下の行に、script タグ（body の終わりの直前） -->\n</body>\n</html>\n',
     'css/main.css':'body {\n  font-family: sans-serif;\n  padding: 24px;\n}\n\nbutton {\n  font-size: 18px;\n  padding: 8px 20px;\n}\n\n#msg {\n  font-size: 20px;\n}\n',
     'js/main.js':'const btn = document.getElementById("btn");\nconst msg = document.getElementById("msg");\n\nbtn.addEventListener("click", () => {\n  // ここに、ボタンを押したときの動きを書く\n});\n'
   },
@@ -759,14 +790,14 @@ ${ex('// ○ msg は変数（部品）\nmsg.textContent = "押されました！
 </ul>
 <p>${k('console.log(値)')} を書くと、プレビュー下のコンソールに表示されます。エラーもここに出ます。動かないときは、まずここを見ます。</p>`,
   tasks:[
-    {t:`ボタンを押すと ${k('#msg')} の文字が変わる（${k('<script>')} で main.js を読み込むのも忘れずに）`,c:'<!\x2d- index.html：</body> の直前に書く -->\n<script src="js/main.js"><\/script>\n\n// main.js：押されたときの { } の中に書く\nmsg.textContent = "押されました！";  // msg の文字を書き換える',f:c=>{const b=c.q('#btn'),m=c.q('#msg'),a=c.txt(m);b.click();return c.txt(m)!==''&&c.txt(m)!==a}},
+    {t:`ボタンを押すと ${k('#msg')} の文字が変わる（${k('<script>')} で main.js を読み込むのも忘れずに）`,n:'{{msg}} はプログラム側の名前なので、そのままにします。書き換えるのは {{" "}} の中（画面に出る文字）です。コメント（<!\x2d- -->）の行は、消してもそのままでもOKです。',c:'<!\x2d- index.html：</body> の直前に書く -->\n<script src="js/main.js"><\/script>\n\n// main.js：押されたときの { } の中に書く\nmsg.textContent = "押されました！";  // 画面に出る文字を入れかえる',f:c=>{const b=c.q('#btn'),m=c.q('#msg'),a=c.txt(m);b.click();return c.txt(m)!==''&&c.txt(m)!==a}},
     {t:`押すと ${k('#msg')} の文字の色も変わる`,c:'// 押されたときの { } の中に足す\nmsg.style.color = "royalblue";  // 文字の色を変える',f:c=>{const b=c.q('#btn'),m=c.q('#msg'),a=c.cs(m,'color');b.click();return c.cs(m,'color')!==a}},
     {t:'押すたびに表示が変わる（回数を数える）',c:'let count = 0;   // クリックの外に書く\n\ncount = count + 1;   // クリックの中に書く\nmsg.textContent = count + "回目";',f:c=>{const b=c.q('#btn'),m=c.q('#msg');b.click();const a=c.txt(m);b.click();const d=c.txt(m);return a!==''&&d!==''&&a!==d}}
   ],
   hint:`script タグは \`<script src="js/main.js"><\/script>\` の形です（\`</body>\` の直前）。main.js の中は \`msg.textContent = "押されました！";\` と \`msg.style.color = "royalblue";\` の2行を書きます。`,
   sol:{files:{
     'index.html':HTML_HEAD+'  <title>ボタン</title>\n'+LINK_CSS+'</head>\n<body>\n  <h1>ボタンで変わるページ</h1>\n  <button id="btn">押してね</button>\n  <p id="msg">まだ押されていません</p>\n  <script src="js/main.js"><\/script>\n</body>\n</html>\n',
-    'js/main.js':'const btn = document.getElementById("btn");\nconst msg = document.getElementById("msg");\nlet count = 0;\n\nbtn.addEventListener("click", () => {\n  count++;\n  msg.textContent = count + "回押されました";\n  msg.style.color = count % 2 === 0 ? "crimson" : "royalblue";\n});\n'}}
+    'js/main.js':'const btn = document.getElementById("btn");\nconst msg = document.getElementById("msg");\nlet count = 0;\n\nbtn.addEventListener("click", () => {\n  count = count + 1;\n  msg.textContent = count + "回目";\n  msg.style.color = "royalblue";\n});\n'}}
 });
 
 LESSONS.push({
@@ -798,14 +829,17 @@ ${ex('age = 18     「age に 18 をしまう」（代入）\nage === 18   「ag
     {t:'18と入力して押すと「成人です」と出る（「未成年」は出ない）', f:c=>{c.q('#age').value='18';c.q('#check').click();const t=c.txt(c.q('#result'));return t.includes('成人')&&!t.includes('未成年')}}
   ],
   hint:`まず ${k('if (input.value === "") { ... return; }')} で空欄を処理し、そのあと ${k('if (age >= 18) { ... } else { ... }')} で分けます。${k('return;')} はそこで処理を終える命令です。`,
-  sol:{files:{'js/main.js':'const input = document.getElementById("age");\nconst btn = document.getElementById("check");\nconst result = document.getElementById("result");\n\nbtn.addEventListener("click", () => {\n  if (input.value === "") {\n    result.textContent = "数字を入れてください";\n    return;\n  }\n  const age = Number(input.value);\n  if (age >= 18) {\n    result.textContent = "成人です";\n  } else {\n    result.textContent = "未成年です";\n  }\n});\n'}}
+  sol:{files:{
+    'index.html':HTML_HEAD+'  <title>年齢チェック</title>\n'+LINK_CSS+'</head>\n<body>\n  <h1>年齢チェック</h1>\n  <label for="age">年齢</label>\n  <input id="age" type="number">\n  <button id="check">判定する</button>\n  <p id="result"></p>\n  <script src="js/main.js"><\/script>\n</body>\n</html>\n',
+    'css/main.css':'body {\n  font-family: sans-serif;\n  padding: 24px;\n}\n\ninput, button {\n  font-size: 16px;\n  padding: 6px 10px;\n}\n\n#result {\n  font-size: 20px;\n}\n',
+    'js/main.js':'const input = document.getElementById("age");\nconst btn = document.getElementById("check");\nconst result = document.getElementById("result");\n\nbtn.addEventListener("click", () => {\n  if (input.value === "") {\n    result.textContent = "数字を入れてください";\n    return;\n  }\n  const age = Number(input.value);\n  if (age >= 18) {\n    result.textContent = "成人です";\n  } else {\n    result.textContent = "未成年です";\n  }\n});\n'}}
 });
 
 LESSONS.push({
   id:'motion', req:1, adv:true, short:'発展モーション', title:'発展：ライブラリで動きをつける（余裕があれば）',
   open:'index.html', page:'index.html', w:800, fresh:true,
   files:{
-    'index.html':HTML_HEAD+'  <title>モーション</title>\n'+LINK_CSS+'</head>\n<body>\n  <h1>動く四角</h1>\n  <div class="box"></div>\n  <!\x2d- ここに ライブラリの script タグ、そのあとに自分の main.js -->\n</body>\n</html>\n',
+    'index.html':HTML_HEAD+'  <title>モーション</title>\n'+LINK_CSS+'</head>\n<body>\n  <h1>動く四角</h1>\n  <div class="box"></div>\n  <!\x2d- この下の行に、ライブラリの script タグ、そのあとに自分の main.js -->\n</body>\n</html>\n',
     'css/main.css':'body {\n  font-family: sans-serif;\n  padding: 24px;\n}\n\n.box {\n  width: 80px;\n  height: 80px;\n  background-color: #2a4a8a;\n  border-radius: 12px;\n}\n',
     'js/main.js':'// ここに anime({ ... }) を書く\n'
   },
@@ -834,14 +868,14 @@ ${ex('anime({\n  targets: ".box",\n  translateX: 250,\n  rotate: "1turn",\n  dur
 </ul>
 <p class="note">動かないときは、検証の Console と Network を見ます。「anime is not defined」と出たら、ライブラリの読み込みが失敗しています（URLの間違い、読み込む順番、ネットワークの不調）。</p>`,
   tasks:[
-    {t:`ライブラリを読み込む（${k('<script>')} を、main.js より前に書く）`,n:'①左のファイル一覧で {{index.html}} を開く　②コメントの場所に、下の2行を、この順番で足す。1行目がライブラリ、2行目が自分のJSです。',c:'<!\x2d- 1行目：ライブラリ（anime.js）を読み込む -->\n<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"><\/script>\n<!\x2d- 2行目：自分のJS。必ずライブラリのあと -->\n<script src="js/main.js"><\/script>',f:c=>{const h=(c.files['index.html']||'').replace(/<!-{2}[\s\S]*?-{2}>/g,''),a=h.search(/<script[^>]*src=["'][^"']*anime[^"']*["']/i),b=h.search(/<script[^>]*src=["']js\/main\.js["']/i);return a>=0&&b>a}},
+    {t:`ライブラリを読み込む（${k('<script>')} を、main.js より前に書く）`,n:'①左のファイル一覧で {{index.html}} を開く　②コメントの場所に、下の2行を、この順番で足す。1行目がライブラリ、2行目が自分のJSです。コメント（<!\x2d- -->）の行は、消してもそのままでもOKです。',c:'<!\x2d- 1行目：ライブラリ（anime.js）を読み込む -->\n<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"><\/script>\n<!\x2d- 2行目：自分のJS。必ずライブラリのあと -->\n<script src="js/main.js"><\/script>',f:c=>{const h=(c.files['index.html']||'').replace(/<!-{2}[\s\S]*?-{2}>/g,''),a=h.search(/<script[^>]*src=["'][^"']*anime[^"']*["']/i),b=h.search(/<script[^>]*src=["']js\/main\.js["']/i);return a>=0&&b>a}},
     {t:`${k('.box')} を横に動かす（${k('anime({ ... })')} を書く）`,n:'{{js/main.js}} を開いて、コメントの行を消し、下のコードを書きます。保存すると、プレビューで四角が動きます。',c:'anime({\n  targets: ".box",   // 動かす要素（CSSのセレクタ）\n  translateX: 250,    // 横に250px動く\n  duration: 1500      // 1.5秒かける\n});',f:c=>/anime\s*\(\s*\{[\s\S]*targets\s*:\s*["']\.box["'][\s\S]*translateX/.test(c.files['js/main.js']||'')},
-    {t:`回転や繰り返しも足す（${k('rotate')} と ${k('loop')}）`,n:'{{anime({ ... })}} の { } の中に、下の行を足します（行の終わりの {{,}}（カンマ）を忘れずに）。{{loop: true}} は「終わったらまた最初から始める」、{{direction: "alternate"}} は「行きと帰りを交互に再生する」という意味です。{{loop: true}} の行を消すと、1回で止まります。',c:'rotate: "1turn",         // 1回転する\nloop: true,          // 終わったら、また始める\ndirection: "alternate", // 行きは右へ、帰りは逆再生で左へ',f:c=>{const j=c.files['js/main.js']||'';return /rotate\s*:/.test(j)&&/loop\s*:\s*true/.test(j)}}
+    {t:`回転や繰り返しも足す（${k('rotate')} と ${k('loop')}）`,n:'{{anime({ ... })}} の { } の中に、下の行を足します。行の終わりに {{,}}（カンマ）を付けて区切りますが、{{ }} の中のいちばん最後の行には要りません。{{loop: true}} は「終わったらまた最初から始める」、{{direction: "alternate"}} は「行きと帰りを交互に再生する」という意味です。{{loop: true}} の行を消すと、1回で止まります。',c:'rotate: "1turn",         // 1回転する\nloop: true,          // 終わったら、また始める\ndirection: "alternate", // 行きは右へ、帰りは逆再生で左へ',f:c=>{const j=c.files['js/main.js']||'';return /rotate\s*:/.test(j)&&/loop\s*:\s*true/.test(j)}}
   ],
   hint:`index.html に、${k('<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"><\/script>')} を、${k('<script src="js/main.js"><\/script>')} よりも前に書きます。動きは main.js に書きます。`,
   sol:{files:{
     'index.html':HTML_HEAD+'  <title>モーション</title>\n'+LINK_CSS+'</head>\n<body>\n  <h1>動く四角</h1>\n  <div class="box"></div>\n  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"><\/script>\n  <script src="js/main.js"><\/script>\n</body>\n</html>\n',
-    'js/main.js':'anime({\n  targets: ".box",\n  translateX: 250,\n  rotate: "1turn",\n  duration: 1500,\n  easing: "easeInOutQuad",\n  loop: true,\n  direction: "alternate"\n});\n'}}
+    'js/main.js':'anime({\n  targets: ".box",\n  translateX: 250,\n  rotate: "1turn",\n  duration: 1500,\n  loop: true,\n  direction: "alternate"\n});\n'}}
 });
 
 function SITE(v){
